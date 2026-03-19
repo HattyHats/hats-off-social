@@ -1888,7 +1888,7 @@
   </div>
 
   <!-- ── Create Group Modal ── -->
-  <div class="modal-overlay" id="createGroupModal">
+  <div class="modal-overlay" id="createGroupModal" style="z-index:400;">
     <div class="modal-box" id="createGroupModalBox">
       <button class="modal-close" onclick="closeCreateGroup()">×</button>
       <h2 class="modal-title" style="text-align:left;margin-bottom:6px;">Create a Hat Room</h2>
@@ -1910,7 +1910,7 @@
         <input class="modal-input" id="groupTopicInput" type="text" placeholder="What's this room about?" maxlength="80" />
       </div>
 
-      <button class="modal-btn" onclick="submitCreateGroup()">Create room 🎩</button>
+      <button class="modal-btn" id="createGroupBtn" onclick="submitCreateGroup()">Create room 🎩</button>
     </div>
   </div>
 
@@ -2744,7 +2744,11 @@
       document.getElementById('groupTopicInput').value = '';
       document.getElementById('groupNameError').classList.remove('show');
       document.getElementById('groupNameInput').classList.remove('error');
+      /* Reset button */
+      const btn = document.getElementById('createGroupBtn');
+      if (btn) { btn.disabled = false; btn.textContent = 'Create room 🎩'; }
       document.getElementById('createGroupModal').classList.add('open');
+      setTimeout(() => document.getElementById('groupNameInput').focus(), 300);
     };
 
     window.closeCreateGroup = function() {
@@ -2762,42 +2766,60 @@
     window.submitCreateGroup = async function() {
       const name  = document.getElementById('groupNameInput').value.trim();
       const topic = document.getElementById('groupTopicInput').value.trim();
+
+      /* Validate */
       if (!name || name.length < 3) {
         document.getElementById('groupNameError').classList.add('show');
         document.getElementById('groupNameInput').classList.add('error');
         return;
       }
-      const btn = document.querySelector('#createGroupModal .modal-btn');
-      btn.disabled = true; btn.textContent = 'Creating…';
+      document.getElementById('groupNameError').classList.remove('show');
+      document.getElementById('groupNameInput').classList.remove('error');
+
+      if (!currentUser) { showToast('Please log in first.'); return; }
+
+      const btn = document.getElementById('createGroupBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creating…';
 
       try {
+        const bgColor = GROUP_BG_COLORS[groupBgIdx++ % GROUP_BG_COLORS.length];
         const newRef = await push(ref(db, 'groups'), {
           name,
           topic:     topic || '',
           emoji:     selectedGroupEmoji,
-          bg:        GROUP_BG_COLORS[groupBgIdx++ % GROUP_BG_COLORS.length],
+          bg:        bgColor,
           createdBy: currentUser.username,
           msgCount:  0,
           createdAt: serverTimestamp()
         });
-        /* Post system message */
+
+        /* Post system welcome message */
         await push(ref(db, 'chatMessages/' + newRef.key), {
-          system: true,
-          body: `🎩 Room created by ${currentUser.username}. Welcome!`,
+          system:    true,
+          body:      '🎩 Room created by ' + currentUser.username + '. Welcome!',
           createdAt: serverTimestamp()
         });
+
         window.closeCreateGroup();
         showToast('🎩 Room created! Opening it now…');
-        /* Wait a beat then open it */
+
         setTimeout(() => {
-          const groupData = { id: newRef.key, name, topic, emoji: selectedGroupEmoji, bg: GROUP_BG_COLORS[(groupBgIdx-1) % GROUP_BG_COLORS.length] };
-          openRoom(groupData);
-        }, 600);
-      } catch(e) {
-        showToast('Error creating room — try again.');
-        console.error(e);
+          openRoom({
+            id:    newRef.key,
+            name,
+            topic,
+            emoji: selectedGroupEmoji,
+            bg:    bgColor
+          });
+        }, 400);
+
+      } catch(err) {
+        console.error('Create group error:', err);
+        showToast('Error: ' + (err.message || 'Could not create room. Check Firebase rules.'));
+        btn.disabled = false;
+        btn.textContent = 'Create room 🎩';
       }
-      btn.disabled = false; btn.textContent = 'Create room 🎩';
     };
 
     /* ── Init ── */
