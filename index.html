@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hats Off Social — Be Whoever You Want</title>
+  <meta name="description" content="Hats Off Social is the anonymous community where you can be whoever you want. No checks, no labels, just you." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d0d;
+      --bg2:       #161616;
+      --bg3:       #1e1e1e;
+      --border:    rgba(255,255,255,0.08);
+      --border-md: rgba(255,255,255,0.14);
+      --text:      #f0ede8;
+      --muted:     #888580;
+      --dimmed:    #444240;
+      --accent:    #c8c4be;
+      --white:     #ffffff;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Ambient glow ── */
+    .glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,196,190,0.06) 0%, transparent 70%);
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ════════════════════════════════════════
+       SPLASH SCREEN
+    ════════════════════════════════════════ */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #080808;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* big hat image behind everything */
+    #splash-hat {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    #splash-hat img {
+      width: min(70vw, 520px);
+      opacity: 0.18;
+      filter: grayscale(30%) blur(1px);
+      animation: splashHatDrift 6s ease-in-out infinite;
+    }
+    @keyframes splashHatDrift {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-14px) scale(1.02); }
+    }
+
+    /* vignette over the hat */
+    #splash::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 30%, #080808 80%);
+      pointer-events: none;
+    }
+
+    .splash-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .splash-title {
+      font-family: var(--font-head);
+      font-size: clamp(52px, 12vw, 120px);
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -2px;
+      line-height: 1;
+      opacity: 0;
+      animation: splashFadeUp 1s ease forwards 0.4s;
+    }
+
+    .splash-credit {
+      font-family: var(--font-body);
+      font-size: clamp(13px, 2vw, 17px);
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      opacity: 0;
+      animation: splashFadeUp 1s ease forwards 1.1s;
+    }
+
+    .splash-credit .glitch-name {
+      color: var(--accent);
+      font-weight: 500;
+      display: inline-block;
+      animation: glitch 4s ease-in-out infinite 2.5s;
+    }
+
+    @keyframes splashFadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes glitch {
+      0%, 88%, 100% {
+        text-shadow: none;
+        transform: translate(0);
+        clip-path: none;
+        opacity: 1;
+      }
+      90% {
+        text-shadow: -2px 0 #c0564a, 2px 0 #4a8ab0;
+        transform: translate(-2px, 1px);
+        opacity: 0.9;
+      }
+      91% {
+        text-shadow: 2px 0 #c0564a, -2px 0 #4a8ab0;
+        transform: translate(2px, -1px);
+        opacity: 1;
+      }
+      92% {
+        text-shadow: -3px 0 #c0564a, 3px 0 #4a8ab0;
+        transform: translate(0, 2px) skewX(-3deg);
+        opacity: 0.85;
+      }
+      93% {
+        text-shadow: none;
+        transform: translate(0);
+        opacity: 1;
+      }
+      95% {
+        text-shadow: 1px 0 #c0564a, -1px 0 #4a8ab0;
+        transform: translate(1px, 0);
+      }
+      96% {
+        text-shadow: none;
+        transform: translate(0);
+      }
+    }
+
+    .splash-enter {
+      margin-top: 36px;
+      padding: 14px 48px;
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--accent);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      opacity: 0;
+      animation: splashFadeUp 1s ease forwards 1.8s;
+      box-shadow:
+        0 0 20px rgba(200,196,190,0.35),
+        0 0 60px rgba(200,196,190,0.15),
+        0 0 120px rgba(200,196,190,0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .splash-enter:hover {
+      transform: scale(1.04);
+      box-shadow:
+        0 0 30px rgba(200,196,190,0.5),
+        0 0 80px rgba(200,196,190,0.25);
+    }
+
+    /* splash fade-out */
+    #splash.hiding {
+      animation: splashOut 0.7s ease forwards;
+    }
+    @keyframes splashOut {
+      to { opacity: 0; pointer-events: none; }
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 40px;
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-hat-img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+    }
+
+    .nav-wordmark {
+      font-family: var(--font-head);
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-ghost {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border-md); }
+
+    .btn-primary {
+      padding: 8px 20px;
+      border-radius: 6px;
+      border: none;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      overflow: hidden;
+    }
+
+    .hero-hat-img {
+      width: min(280px, 55vw);
+      opacity: 0.9;
+      margin-bottom: 32px;
+      animation: float 5s ease-in-out infinite;
+      filter: drop-shadow(0 12px 40px rgba(200,196,190,0.15));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    .hero-tag {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .hero-headline {
+      font-family: var(--font-head);
+      font-size: clamp(44px, 8vw, 96px);
+      font-weight: 800;
+      line-height: 1.02;
+      color: var(--text);
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+    .hero-headline span { color: var(--accent); }
+
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 18px);
+      font-weight: 300;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 60px;
+    }
+
+    .btn-hero {
+      padding: 14px 32px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-hero:hover { opacity: 0.9; transform: translateY(-2px); }
+
+    .btn-ghost-hero {
+      padding: 14px 24px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 15px;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-ghost-hero:hover { color: var(--text); border-color: var(--border-md); }
+
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .stat { text-align: center; }
+    .stat-num  { font-family: var(--font-head); font-size: 28px; font-weight: 800; color: var(--text); }
+    .stat-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .stat-divider { width: 1px; height: 36px; background: var(--border); }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.4;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, transparent, var(--muted));
+      animation: pulse-line 2s ease-in-out infinite;
+    }
+    .scroll-hint span { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    @keyframes pulse-line { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    /* ── Feed Section ── */
+    .feed-section {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 80px 24px 120px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feed-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .feed-label {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .feed-title {
+      font-family: var(--font-head);
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+    }
+    .feed-subtitle { font-size: 15px; color: var(--muted); font-weight: 300; }
+
+    /* ── Feed Tabs ── */
+    .feed-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+    .feed-tab {
+      padding: 10px 18px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .feed-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+    .feed-tab:hover:not(.active) { color: var(--text); }
+
+    /* ── Post Card ── */
+    .post-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .post-card:hover { border-color: var(--border-md); }
+
+    .post-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    /* hat avatar using image */
+    .hat-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #222220;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .hat-avatar img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+      filter: var(--hat-filter, none);
+    }
+
+    .post-meta { flex: 1; min-width: 0; }
+    .post-username {
+      font-family: var(--font-head);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .post-time { font-size: 12px; color: var(--muted); }
+
+    .post-board {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--bg3);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .post-body {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.65;
+      margin-bottom: 14px;
+      word-wrap: break-word;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .post-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .post-action:hover { background: var(--bg3); color: var(--text); }
+    .post-action.liked { color: #c0564a; }
+    .post-action svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ── Comment Section (collapsible) ── */
+    .comment-section {
+      margin-top: 14px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      display: none;
+    }
+    .comment-section.open { display: block; }
+
+    .comment-compose {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .comment-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #222220;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .comment-avatar img { width: 20px; height: 20px; object-fit: contain; }
+
+    .comment-input-wrap { flex: 1; }
+    .comment-input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 13px;
+      resize: none;
+      rows: 1;
+      min-height: 36px;
+      max-height: 120px;
+      overflow-y: auto;
+      transition: border-color 0.2s;
+    }
+    .comment-input:focus { outline: none; border-color: var(--border-md); }
+    .comment-input::placeholder { color: var(--dimmed); }
+
+    .comment-actions-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 6px;
+      gap: 8px;
+    }
+    .btn-comment-submit {
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: none;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-comment-submit:disabled { opacity: 0.35; cursor: default; }
+    .btn-comment-submit:hover:not(:disabled) { opacity: 0.85; }
+
+    .comment-guest-nudge {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 6px 0 10px;
+    }
+    .comment-guest-nudge a { color: var(--accent); text-decoration: none; }
+    .comment-guest-nudge a:hover { text-decoration: underline; }
+
+    /* individual comments */
+    .comment-list { display: flex; flex-direction: column; gap: 10px; }
+    .comment-item {
+      display: flex;
+      gap: 10px;
+    }
+    .comment-body-wrap { flex: 1; }
+    .comment-bubble {
+      background: var(--bg3);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+    .comment-username {
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+    .comment-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+    .comment-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .comment-time { font-size: 11px; color: var(--dimmed); }
+    .comment-like-btn {
+      background: none;
+      border: none;
+      font-size: 11px;
+      color: var(--dimmed);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0;
+      transition: color 0.2s;
+    }
+    .comment-like-btn:hover { color: var(--muted); }
+    .comment-like-btn.liked { color: #c0564a; }
+    .comment-like-btn svg { width: 11px; height: 11px; }
+
+    .comments-loading {
+      text-align: center;
+      padding: 12px;
+      color: var(--dimmed);
+      font-size: 13px;
+    }
+
+    /* ── Compose Bar ── */
+    .compose-wrap { margin-bottom: 20px; }
+
+    .compose-bar {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: none;
+      gap: 12px;
+      transition: border-color 0.2s;
+    }
+    .compose-bar:focus-within { border-color: var(--border-md); }
+
+    .compose-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #222220;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .compose-avatar img { width: 28px; height: 28px; object-fit: contain; }
+
+    .compose-input-wrap { flex: 1; min-width: 0; }
+
+    .compose-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 300;
+      resize: none;
+      min-height: 44px;
+      max-height: 200px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+    .compose-input:focus { outline: none; }
+    .compose-input::placeholder { color: var(--dimmed); }
+
+    .compose-actions {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .compose-actions.visible { display: flex; }
+
+    .compose-char { font-size: 12px; color: var(--dimmed); transition: color 0.2s; }
+    .compose-char.warn  { color: #b09050; }
+    .compose-char.limit { color: #c0564a; }
+
+    .compose-right { display: flex; align-items: center; gap: 8px; }
+
+    .compose-board-select {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 13px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .compose-submit {
+      padding: 7px 20px;
+      border-radius: 6px;
+      border: none;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, opacity 0.2s;
+    }
+    .compose-submit:hover:not(:disabled) { background: var(--white); transform: translateY(-1px); }
+    .compose-submit:disabled { opacity: 0.35; cursor: default; }
+
+    /* Guest compose nudge */
+    .compose-guest {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .compose-guest-text { flex: 1; font-size: 14px; color: var(--muted); font-weight: 300; }
+    .compose-guest-text span { color: var(--text); font-weight: 500; }
+    .compose-guest-btn {
+      padding: 8px 18px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font-body);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+    .compose-guest-btn:hover { opacity: 0.85; }
+
+    /* ── Join CTA Card ── */
+    .join-card {
+      background: var(--bg2);
+      border: 1px solid var(--border-md);
+      border-radius: 12px;
+      padding: 32px 24px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .join-card-hat-img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin: 0 auto 16px;
+      display: block;
+      opacity: 0.7;
+    }
+    .join-card-title {
+      font-family: var(--font-head);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .join-card-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+    .join-card-btn {
+      display: inline-block;
+      padding: 10px 28px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: var(--font-body);
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .join-card-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── Feed Empty / Loading ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Modals ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: var(--bg2);
+      border: 1px solid var(--border-md);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      padding: 32px;
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0); }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .modal-close:hover { color: var(--text); background: var(--bg3); }
+
+    .modal-hat-img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin: 0 auto 16px;
+      display: block;
+    }
+
+    .modal-title {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .modal-sub {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-field { margin-bottom: 16px; }
+    .modal-label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .modal-input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .modal-input:focus { outline: none; border-color: var(--border-md); }
+    .modal-input.error { border-color: #c0564a; }
+
+    .modal-error {
+      font-size: 12px;
+      color: #c0564a;
+      margin-top: 4px;
+      display: none;
+    }
+    .modal-error.show { display: block; }
+
+    .modal-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .modal-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .modal-switch {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .modal-switch a { color: var(--accent); text-decoration: none; }
+    .modal-switch a:hover { text-decoration: underline; }
+
+    /* step indicators */
+    .modal-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .modal-step-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border-md);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .modal-step-dot.active { background: var(--accent); transform: scale(1.3); }
+    .modal-step-dot.done   { background: var(--muted); }
+
+    .modal-step { display: none; }
+    .modal-step.active { display: block; animation: fadeUp 0.2s ease both; }
+
+    /* Hat colour picker */
+    .hat-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .hat-option {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s, transform 0.15s;
+      overflow: hidden;
+    }
+    .hat-option img { width: 70%; height: 70%; object-fit: contain; }
+    .hat-option:hover    { transform: scale(1.06); }
+    .hat-option.selected { border-color: var(--accent); }
+
+    .hat-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+    .hat-preview-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #222220;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .hat-preview-avatar img { width: 32px; height: 32px; object-fit: contain; }
+    .hat-preview-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--text); }
+    .hat-preview-handle { font-size: 12px; color: var(--muted); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg3);
+      border: 1px solid var(--border-md);
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      color: var(--text);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .footer-hat-img { width: 28px; height: 28px; object-fit: contain; }
+    .footer-wordmark {
+      font-family: var(--font-head);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .footer-copy { font-size: 12px; color: var(--dimmed); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-1 { animation: fadeUp 0.7s ease both 0.1s; }
+    .fade-2 { animation: fadeUp 0.7s ease both 0.25s; }
+    .fade-3 { animation: fadeUp 0.7s ease both 0.4s; }
+    .fade-4 { animation: fadeUp 0.7s ease both 0.55s; }
+    .fade-5 { animation: fadeUp 0.7s ease both 0.7s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      nav { padding: 12px 20px; }
+      .nav-wordmark { display: none; }
+      footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px; }
+      .hero-stats { gap: 16px; }
+      .stat-num { font-size: 22px; }
+      .hat-picker-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════
+       SPLASH SCREEN
+  ════════════════════════════════════════ -->
+  <div id="splash">
+    <div id="splash-hat">
+      <img src="grey-hat.png" alt="Hats Off hat" />
+    </div>
+    <div class="splash-content">
+      <div class="splash-title">Hats-Off</div>
+      <div class="splash-credit">Created by <span class="glitch-name">HattyHats</span></div>
+      <button class="splash-enter" onclick="enterSite()">Enter</button>
+    </div>
+  </div>
+
+  <!-- ambient glow -->
+  <div class="glow" aria-hidden="true"></div>
+
+  <!-- ── Nav ── -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="grey-hat.png" alt="Hats Off" class="nav-hat-img" />
+      <span class="nav-wordmark">Hats Off Social</span>
+    </a>
+    <div class="nav-right" id="navRight">
+      <a href="boards.html" class="btn-ghost" style="border:none;padding:8px 12px;">Boards</a>
+      <button class="btn-ghost" onclick="openLoginModal()">Log in</button>
+      <button class="btn-primary" onclick="openModal()">Join free</button>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <img src="grey-hat.png" alt="Hats Off" class="hero-hat-img fade-1" />
+    <p class="hero-tag fade-1">Welcome to Hats Off Social</p>
+    <h1 class="hero-headline fade-2">Be <span>whoever</span><br>you want.</h1>
+    <p class="hero-sub fade-3">No age checks. No verification. No real names.<br>Just a community of free thinkers behind their hats.</p>
+    <div class="hero-cta fade-4">
+      <a href="#" class="btn-hero" onclick="openModal(); return false;">Put your hat on — it's free</a>
+      <a href="#feed" class="btn-ghost-hero">See what's happening →</a>
+    </div>
+    <div class="hero-stats fade-5">
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Anonymous</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <div class="stat-num">0</div>
+        <div class="stat-label">ID checks</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Identities</div>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ── Feed Section ── -->
+  <section class="feed-section" id="feed">
+
+    <div class="feed-header">
+      <p class="feed-label">Live community</p>
+      <h2 class="feed-title">What's happening now</h2>
+      <p class="feed-subtitle">Real thoughts from real strangers. No names required.</p>
+    </div>
+
+    <!-- Compose bar -->
+    <div class="compose-wrap" id="composeWrap">
+      <!-- Logged-out nudge -->
+      <div class="compose-guest" id="composeGuest">
+        <img src="grey-hat.png" alt="" style="width:32px;height:32px;object-fit:contain;opacity:0.35;flex-shrink:0;" />
+        <p class="compose-guest-text"><span>Join to post.</span> Say whatever's on your mind, no strings attached.</p>
+        <a href="#" class="compose-guest-btn" onclick="openModal(); return false;">Put your hat on</a>
+      </div>
+      <!-- Logged-in compose -->
+      <div class="compose-bar" id="composeBar">
+        <div class="compose-avatar" id="composeAvatar">
+          <img src="grey-hat.png" alt="" id="composeHatImg" />
+        </div>
+        <div class="compose-input-wrap">
+          <textarea
+            class="compose-input"
+            id="composeInput"
+            placeholder="What's on your mind?"
+            maxlength="280"
+            rows="1"
+            oninput="onComposeInput(this)"
+            onfocus="showComposeActions()"
+          ></textarea>
+          <div class="compose-actions" id="composeActions">
+            <span class="compose-char" id="composeChar">280</span>
+            <div class="compose-right">
+              <select class="compose-board-select" id="composeBoardSelect">
+                <option value="random">#random</option>
+                <option value="crypto">#crypto</option>
+                <option value="ai">#ai</option>
+                <option value="privacy">#privacy</option>
+                <option value="web3">#web3</option>
+                <option value="finance">#finance</option>
+                <option value="politics">#politics</option>
+                <option value="gaming">#gaming</option>
+                <option value="science">#science</option>
+              </select>
+              <button class="compose-submit" id="composeSubmit" onclick="submitPost()" disabled>Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="feed-tabs">
+      <button class="feed-tab active" onclick="switchTab(this, 'latest')">Latest</button>
+      <button class="feed-tab" onclick="switchTab(this, 'trending')">Trending</button>
+    </div>
+
+    <!-- Firebase posts load here -->
+    <div id="feedPosts"></div>
+
+    <!-- Empty state -->
+    <div id="feedEmpty" style="display:none;text-align:center;padding:60px 20px;">
+      <img src="grey-hat.png" alt="" style="width:60px;height:60px;object-fit:contain;margin:0 auto 16px;display:block;opacity:0.2;" />
+      <p style="color:var(--muted);font-size:15px;">No posts yet. Be the first to say something.</p>
+    </div>
+
+    <!-- Loading -->
+    <div id="feedLoading" style="text-align:center;padding:40px 20px;">
+      <div style="width:20px;height:20px;border:2px solid var(--border-md);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto;"></div>
+    </div>
+
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <a href="index.html" class="footer-logo">
+      <img src="grey-hat.png" alt="Hats Off" class="footer-hat-img" />
+      <span class="footer-wordmark">Hats Off Social</span>
+    </a>
+    <p class="footer-copy">© 2025 Hats Off Social · Built for free thinkers</p>
+  </footer>
+
+  <!-- ── Signup Modal ── -->
+  <div class="modal-overlay" id="signupModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">×</button>
+
+      <!-- Step 1: credentials -->
+      <div class="modal-step active" id="step1">
+        <img src="grey-hat.png" class="modal-hat-img" alt="" />
+        <h2 class="modal-title">Put your hat on</h2>
+        <p class="modal-sub">Create an anonymous handle. No email, no phone, ever.</p>
+        <div class="modal-steps">
+          <div class="modal-step-dot active" id="dot1"></div>
+          <div class="modal-step-dot" id="dot2"></div>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="username">Username</label>
+          <input class="modal-input" id="username" type="text" placeholder="e.g. shadow_rider" maxlength="30" autocomplete="off" onkeydown="if(event.key==='Enter')goToStep2()" />
+          <div class="modal-error" id="usernameError">3–30 chars, letters, numbers and underscores only.</div>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="password">Password</label>
+          <input class="modal-input" id="password" type="password" placeholder="8+ characters" maxlength="100" onkeydown="if(event.key==='Enter')goToStep2()" />
+          <div class="modal-error" id="passwordError">Password must be at least 8 characters.</div>
+        </div>
+        <button class="modal-btn" onclick="goToStep2()">Choose your hat →</button>
+        <div class="modal-switch">Already have a hat? <a href="#" onclick="openLoginModal();return false;">Log in</a></div>
+      </div>
+
+      <!-- Step 2: hat colour -->
+      <div class="modal-step" id="step2">
+        <h2 class="modal-title">Pick your hat colour</h2>
+        <p class="modal-sub">This is your identity. No one knows who's under it.</p>
+        <div class="modal-steps">
+          <div class="modal-step-dot done" id="dot1b"></div>
+          <div class="modal-step-dot active" id="dot2b"></div>
+        </div>
+        <div class="hat-preview">
+          <div class="hat-preview-avatar" id="previewAvatar">
+            <img src="grey-hat.png" id="previewHatImg" alt="" />
+          </div>
+          <div>
+            <div class="hat-preview-name" id="previewName"></div>
+            <div class="hat-preview-handle" id="previewHandle"></div>
+          </div>
+        </div>
+        <div class="hat-picker-grid" id="hatPickerGrid"></div>
+        <button class="modal-btn" onclick="finishSignup()">Hats on — let's go 🎩</button>
+        <div class="modal-switch"><a href="#" onclick="showStep(1);return false;">← Back</a></div>
+      </div>
+
+      <!-- Step 3: welcome -->
+      <div class="modal-step" id="step3">
+        <img src="grey-hat.png" class="modal-hat-img" alt="" style="width:70px;height:70px;" />
+        <h2 class="modal-title" id="welcomeMsg">Welcome aboard.</h2>
+        <p class="modal-sub">Your hat is on. You're anonymous. Say anything.</p>
+        <button class="modal-btn" onclick="startPosting()">Start posting</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Login Modal ── -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeLoginModal()">×</button>
+      <img src="grey-hat.png" class="modal-hat-img" alt="" />
+      <h2 class="modal-title">Welcome back</h2>
+      <p class="modal-sub">Your hat is waiting.</p>
+      <div class="modal-field">
+        <label class="modal-label" for="loginUsername">Username</label>
+        <input class="modal-input" id="loginUsername" type="text" placeholder="your_username" autocomplete="off" onkeydown="if(event.key==='Enter')submitLogin()" />
+        <div class="modal-error" id="loginUsernameError">Please enter your username.</div>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="loginPassword">Password</label>
+        <input class="modal-input" id="loginPassword" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitLogin()" />
+        <div class="modal-error" id="loginPasswordError">Please enter your password.</div>
+      </div>
+      <div class="modal-error" id="loginGeneralError">Couldn't find that account. Check your details.</div>
+      <button class="modal-btn" onclick="submitLogin()">Put my hat on</button>
+      <div class="modal-switch">No hat yet? <a href="#" onclick="openModal();return false;">Create one free</a></div>
+    </div>
+  </div>
+
+  <!-- ── Toast ── -->
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    /* ── Firebase ── */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getDatabase, ref, push, query, orderByChild, limitToLast, onValue, runTransaction, serverTimestamp, get }
+      from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVLx6U3CsbGS2qiZ7Hn2WJnuyD_1kJHqA",
+      authDomain: "hats-off-social.firebaseapp.com",
+      databaseURL: "https://hats-off-social-default-rtdb.firebaseio.com",
+      projectId: "hats-off-social",
+      storageBucket: "hats-off-social.firebasestorage.app",
+      messagingSenderId: "923908102877",
+      appId: "1:923908102877:web:8bff6bbe0c02a68b9e9934"
+    };
+
+    const fbApp = initializeApp(firebaseConfig);
+    const db    = getDatabase(fbApp);
+
+    /* ── Helpers ── */
+    function timeAgo(ts) {
+      if (!ts) return 'just now';
+      const secs = Math.floor((Date.now() - ts) / 1000);
+      if (secs < 10)  return 'just now';
+      if (secs < 60)  return secs + 's ago';
+      const mins = Math.floor(secs / 60);
+      if (mins < 60)  return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24)   return hrs + 'h ago';
+      return Math.floor(hrs / 24) + 'd ago';
+    }
+
+    function safe(str) {
+      return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    /* ── Hat colour palette ── */
+    const HAT_COLOURS = [
+      { id: 'green',  bg: '#1e2a1e', filter: 'hue-rotate(100deg) saturate(1.4) brightness(0.9)' },
+      { id: 'purple', bg: '#1e1e2e', filter: 'hue-rotate(240deg) saturate(1.4) brightness(0.9)' },
+      { id: 'red',    bg: '#2a1e1e', filter: 'hue-rotate(340deg) saturate(1.6) brightness(0.9)' },
+      { id: 'blue',   bg: '#1e2428', filter: 'hue-rotate(195deg) saturate(1.5) brightness(0.9)' },
+      { id: 'gold',   bg: '#22201e', filter: 'hue-rotate(30deg) saturate(1.8) brightness(1)' },
+      { id: 'teal',   bg: '#1e2624', filter: 'hue-rotate(160deg) saturate(1.5) brightness(0.9)' },
+      { id: 'pink',   bg: '#28202a', filter: 'hue-rotate(295deg) saturate(1.6) brightness(1)' },
+      { id: 'orange', bg: '#261e18', filter: 'hue-rotate(15deg) saturate(2) brightness(0.95)' },
+      { id: 'grey',   bg: '#222220', filter: 'none' },
+      { id: 'slate',  bg: '#1c2028', filter: 'hue-rotate(210deg) saturate(0.8) brightness(0.85)' },
+    ];
+
+    let selectedColour = HAT_COLOURS[8]; // default grey
+    let currentUser    = null;
+    let currentTab     = 'latest';
+
+    /* ── Splash ── */
+    window.enterSite = function() {
+      const splash = document.getElementById('splash');
+      splash.classList.add('hiding');
+      setTimeout(() => { splash.style.display = 'none'; }, 700);
+    };
+
+    /* ── Toast ── */
+    function showToast(msg, duration) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), duration || 2800);
+    }
+    window.showToast = showToast;
+
+    /* ── Signup Modal ── */
+    window.openModal = function() {
+      closeLoginModal();
+      goToStep1();
+      document.getElementById('signupModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('username').focus(), 300);
+    };
+
+    window.closeModal = function() {
+      document.getElementById('signupModal').classList.remove('open');
+      document.body.style.overflow = '';
+    };
+
+    document.getElementById('signupModal').addEventListener('click', function(e) {
+      if (e.target === this) window.closeModal();
+    });
+
+    /* ── Login Modal ── */
+    window.openLoginModal = function() {
+      window.closeModal();
+      document.getElementById('loginModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      ['loginUsernameError','loginPasswordError','loginGeneralError'].forEach(id =>
+        document.getElementById(id).classList.remove('show'));
+      ['loginUsername','loginPassword'].forEach(id => {
+        document.getElementById(id).classList.remove('error');
+        document.getElementById(id).value = '';
+      });
+      setTimeout(() => document.getElementById('loginUsername').focus(), 300);
+    };
+
+    window.closeLoginModal = function() {
+      document.getElementById('loginModal').classList.remove('open');
+      document.body.style.overflow = '';
+    };
+
+    document.getElementById('loginModal').addEventListener('click', function(e) {
+      if (e.target === this) window.closeLoginModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { window.closeModal(); window.closeLoginModal(); }
+    });
+
+    window.submitLogin = function() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      let valid = true;
+
+      document.getElementById('loginGeneralError').classList.remove('show');
+
+      if (!username) {
+        document.getElementById('loginUsernameError').classList.add('show');
+        document.getElementById('loginUsername').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('loginUsernameError').classList.remove('show');
+        document.getElementById('loginUsername').classList.remove('error');
+      }
+      if (!password) {
+        document.getElementById('loginPasswordError').classList.add('show');
+        document.getElementById('loginPassword').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('loginPasswordError').classList.remove('show');
+        document.getElementById('loginPassword').classList.remove('error');
+      }
+      if (!valid) return;
+
+      /* Load saved colour if exists, else random */
+      let colourId = 'grey';
+      try {
+        const saved = JSON.parse(localStorage.getItem('ho_user') || '{}');
+        if (saved.username === username && saved.colourId) colourId = saved.colourId;
+      } catch(e) {}
+
+      const colour = HAT_COLOURS.find(h => h.id === colourId) || HAT_COLOURS[8];
+      currentUser = { username, colour, colourId: colour.id };
+      try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: colour.id })); } catch(e) {}
+      window.closeLoginModal();
+      activateLoggedInState();
+      showToast('🎩 Hat\'s on, ' + username + '. Welcome back.');
+    };
+
+    /* ── Signup steps ── */
+    window.buildHatPicker = function() {
+      const grid = document.getElementById('hatPickerGrid');
+      grid.innerHTML = '';
+      HAT_COLOURS.forEach((c, i) => {
+        const div = document.createElement('div');
+        div.className = 'hat-option' + (c.id === selectedColour.id ? ' selected' : '');
+        div.style.background = c.bg;
+        div.innerHTML = `<img src="grey-hat.png" alt="${c.id}" style="filter:${c.filter === 'none' ? 'none' : c.filter};" />`;
+        div.onclick = () => selectColour(c, div);
+        grid.appendChild(div);
+      });
+    };
+
+    function selectColour(c, el) {
+      selectedColour = c;
+      document.querySelectorAll('.hat-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('previewAvatar').style.background = c.bg;
+      const img = document.getElementById('previewHatImg');
+      img.style.filter = c.filter === 'none' ? 'none' : c.filter;
+    }
+
+    window.showStep = function(n) {
+      document.querySelectorAll('.modal-step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step' + n).classList.add('active');
+    };
+
+    function goToStep1() {
+      window.showStep(1);
+      document.getElementById('usernameError').classList.remove('show');
+      document.getElementById('passwordError').classList.remove('show');
+      document.getElementById('username').classList.remove('error');
+      document.getElementById('password').classList.remove('error');
+    }
+
+    window.goToStep2 = function() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      let valid = true;
+
+      if (!/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
+        document.getElementById('usernameError').classList.add('show');
+        document.getElementById('username').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('usernameError').classList.remove('show');
+        document.getElementById('username').classList.remove('error');
+      }
+      if (password.length < 8) {
+        document.getElementById('passwordError').classList.add('show');
+        document.getElementById('password').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('passwordError').classList.remove('show');
+        document.getElementById('password').classList.remove('error');
+      }
+      if (!valid) return;
+
+      document.getElementById('previewName').textContent = username;
+      document.getElementById('previewHandle').textContent = '@' + username;
+      window.buildHatPicker();
+      window.showStep(2);
+    };
+
+    window.finishSignup = function() {
+      const username = document.getElementById('username').value.trim();
+      currentUser = { username, colour: selectedColour, colourId: selectedColour.id };
+      try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: selectedColour.id })); } catch(e) {}
+      document.getElementById('welcomeMsg').textContent = 'Welcome to Hats Off, ' + username + '. Your hat is on.';
+      window.showStep(3);
+    };
+
+    window.startPosting = function() {
+      window.closeModal();
+      activateLoggedInState();
+      showToast('🎩 Hat\'s on, ' + currentUser.username + '. Go ahead — post something.');
+    };
+
+    /* ── Restore session ── */
+    (function restoreSession() {
+      try {
+        const raw = localStorage.getItem('ho_user');
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        const colour = HAT_COLOURS.find(h => h.id === saved.colourId) || HAT_COLOURS[8];
+        currentUser = { username: saved.username, colour, colourId: colour.id };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', activateLoggedInState);
+        } else {
+          activateLoggedInState();
+        }
+      } catch(e) {}
+    })();
+
+    /* ── Logged-in state ── */
+    function activateLoggedInState() {
+      if (!currentUser) return;
+      const c = currentUser.colour;
+
+      /* Swap nav */
+      document.getElementById('navRight').innerHTML =
+        `<div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:34px;height:34px;border-radius:50%;background:${c.bg};display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);overflow:hidden;">
+            <img src="grey-hat.png" style="width:22px;height:22px;object-fit:contain;filter:${c.filter === 'none' ? 'none' : c.filter};" />
+          </div>
+          <span style="font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--text);">${safe(currentUser.username)}</span>
+          <button class="btn-ghost" onclick="logout()" style="font-size:12px;padding:6px 10px;">Log out</button>
+        </div>`;
+
+      /* Swap compose */
+      document.getElementById('composeGuest').style.display = 'none';
+      const bar = document.getElementById('composeBar');
+      bar.style.display = 'flex';
+      document.getElementById('composeAvatar').style.background = c.bg;
+      const img = document.getElementById('composeHatImg');
+      img.style.filter = c.filter === 'none' ? 'none' : c.filter;
+    }
+
+    window.logout = function() {
+      currentUser = null;
+      try { localStorage.removeItem('ho_user'); } catch(e) {}
+      location.reload();
+    };
+
+    /* ── Compose ── */
+    window.showComposeActions = function() {
+      document.getElementById('composeActions').classList.add('visible');
+    };
+
+    window.onComposeInput = function(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+      const remaining = 280 - el.value.length;
+      const charEl   = document.getElementById('composeChar');
+      const submitEl = document.getElementById('composeSubmit');
+      charEl.textContent = remaining;
+      charEl.className   = 'compose-char' + (remaining < 20 ? ' limit' : remaining < 60 ? ' warn' : '');
+      submitEl.disabled  = el.value.trim().length === 0;
+      window.showComposeActions();
+    };
+
+    window.submitPost = async function() {
+      const input = document.getElementById('composeInput');
+      const text  = input.value.trim();
+      const board = document.getElementById('composeBoardSelect').value;
+      if (!text || !currentUser) return;
+
+      const btn = document.getElementById('composeSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Posting…';
+
+      try {
+        await push(ref(db, 'posts'), {
+          username:  currentUser.username,
+          colourId:  currentUser.colourId,
+          board,
+          body:      text,
+          likes:     0,
+          comments:  0,
+          createdAt: serverTimestamp()
+        });
+        input.value = '';
+        input.style.height = 'auto';
+        document.getElementById('composeChar').textContent = '280';
+        document.getElementById('composeChar').className = 'compose-char';
+        document.getElementById('composeActions').classList.remove('visible');
+        showToast('🎩 Post dropped.');
+      } catch(e) {
+        showToast('Error posting — try again.');
+        console.error(e);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Post';
+    };
+
+    /* ── Build post card ── */
+    function buildPostCard(postId, post) {
+      const c = HAT_COLOURS.find(h => h.id === post.colourId) || HAT_COLOURS[8];
+      const safeBody = safe(post.body);
+      const likes    = post.likes || 0;
+      const commentCount = post.comments || 0;
+
+      const article = document.createElement('article');
+      article.className = 'post-card';
+      article.dataset.postId = postId;
+      article.innerHTML = `
+        <div class="post-top">
+          <div class="hat-avatar" style="background:${c.bg};">
+            <img src="grey-hat.png" alt="" style="filter:${c.filter === 'none' ? 'none' : c.filter};" />
+          </div>
+          <div class="post-meta">
+            <div class="post-username">${safe(post.username)}</div>
+            <div class="post-time">${timeAgo(post.createdAt)}</div>
+          </div>
+          <span class="post-board">#${safe(post.board)}</span>
+        </div>
+        <p class="post-body">${safeBody}</p>
+        <div class="post-actions">
+          <button class="post-action like-btn" data-postid="${postId}" data-likes="${likes}" onclick="toggleLikeFB(this)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span class="like-count">${likes}</span>
+          </button>
+          <button class="post-action comment-toggle-btn" data-postid="${postId}" onclick="toggleComments(this, '${postId}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="comment-count">${commentCount}</span>
+          </button>
+          <button class="post-action" onclick="sharePost('${postId}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+          </button>
+        </div>
+        <div class="comment-section" id="comments-${postId}"></div>`;
+
+      return article;
+    }
+
+    /* ── Like ── */
+    window.toggleLikeFB = function(btn) {
+      const postId = btn.dataset.postid;
+      const liked  = btn.classList.toggle('liked');
+      const delta  = liked ? 1 : -1;
+      runTransaction(ref(db, 'posts/' + postId + '/likes'), cur => (cur || 0) + delta);
+      const newCount = Math.max(0, parseInt(btn.dataset.likes || 0) + delta);
+      btn.dataset.likes = newCount;
+      btn.querySelector('.like-count').textContent = newCount;
+    };
+
+    /* ── Share ── */
+    window.sharePost = function(postId) {
+      const url = window.location.origin + window.location.pathname + '?post=' + postId;
+      navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => showToast('Share: ' + url));
+    };
+
+    /* ── Comments ── */
+    window.toggleComments = function(btn, postId) {
+      const section = document.getElementById('comments-' + postId);
+      const isOpen  = section.classList.toggle('open');
+      if (isOpen && section.innerHTML === '') {
+        loadComments(postId, section);
+      }
+    };
+
+    function loadComments(postId, section) {
+      section.innerHTML = '<div class="comments-loading">Loading comments…</div>';
+
+      const composeHTML = currentUser
+        ? `<div class="comment-compose">
+            <div class="comment-avatar" style="background:${currentUser.colour.bg};">
+              <img src="grey-hat.png" alt="" style="filter:${currentUser.colour.filter === 'none' ? 'none' : currentUser.colour.filter};" />
+            </div>
+            <div class="comment-input-wrap">
+              <textarea class="comment-input" id="cinput-${postId}" placeholder="Write a comment…" rows="1"
+                oninput="autoResize(this);document.getElementById('csubmit-${postId}').disabled=this.value.trim().length===0"
+                maxlength="500"></textarea>
+              <div class="comment-actions-row">
+                <button class="btn-comment-submit" id="csubmit-${postId}" disabled
+                  onclick="submitComment('${postId}')">Reply</button>
+              </div>
+            </div>
+          </div>`
+        : `<p class="comment-guest-nudge"><a href="#" onclick="openModal();return false;">Join free</a> to leave a comment.</p>`;
+
+      const commentsRef = query(ref(db, 'comments/' + postId), orderByChild('createdAt'), limitToLast(50));
+      onValue(commentsRef, (snap) => {
+        const list = [];
+        if (snap.exists()) {
+          snap.forEach(c => list.push({ id: c.key, ...c.val() }));
+          list.reverse();
+        }
+
+        const listHTML = list.length === 0
+          ? `<p style="font-size:13px;color:var(--dimmed);padding:6px 0 10px;">No comments yet.</p>`
+          : `<div class="comment-list">${list.map(c => buildCommentHTML(c, postId)).join('')}</div>`;
+
+        section.innerHTML = composeHTML + listHTML;
+      });
+    }
+
+    function buildCommentHTML(c, postId) {
+      const cc = HAT_COLOURS.find(h => h.id === c.colourId) || HAT_COLOURS[8];
+      const likes = c.likes || 0;
+      return `<div class="comment-item" id="citem-${c.id}">
+        <div class="comment-avatar" style="background:${cc.bg};">
+          <img src="grey-hat.png" alt="" style="filter:${cc.filter === 'none' ? 'none' : cc.filter};" />
+        </div>
+        <div class="comment-body-wrap">
+          <div class="comment-bubble">
+            <div class="comment-username">${safe(c.username)}</div>
+            <div class="comment-text">${safe(c.body)}</div>
+          </div>
+          <div class="comment-meta-row">
+            <span class="comment-time">${timeAgo(c.createdAt)}</span>
+            <button class="comment-like-btn" data-commentid="${c.id}" data-postid="${postId}" data-likes="${likes}" onclick="likeComment(this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <span>${likes || ''}</span>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    window.submitComment = async function(postId) {
+      if (!currentUser) { openModal(); return; }
+      const input = document.getElementById('cinput-' + postId);
+      const text  = input.value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('csubmit-' + postId);
+      btn.disabled = true;
+      btn.textContent = '…';
+
+      try {
+        await push(ref(db, 'comments/' + postId), {
+          username:  currentUser.username,
+          colourId:  currentUser.colourId,
+          body:      text,
+          likes:     0,
+          createdAt: serverTimestamp()
+        });
+        /* Increment comment count on post */
+        runTransaction(ref(db, 'posts/' + postId + '/comments'), cur => (cur || 0) + 1);
+
+        input.value = '';
+        input.style.height = 'auto';
+        /* Update comment counter in button */
+        const countEl = document.querySelector(`.comment-toggle-btn[data-postid="${postId}"] .comment-count`);
+        if (countEl) countEl.textContent = parseInt(countEl.textContent || 0) + 1;
+      } catch(e) {
+        showToast('Error — try again.');
+        console.error(e);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Reply';
+    };
+
+    window.likeComment = function(btn) {
+      const commentId = btn.dataset.commentid;
+      const postId    = btn.dataset.postid;
+      const liked     = btn.classList.toggle('liked');
+      const delta     = liked ? 1 : -1;
+      runTransaction(ref(db, 'comments/' + postId + '/' + commentId + '/likes'), cur => (cur || 0) + delta);
+      const newCount = Math.max(0, parseInt(btn.dataset.likes || 0) + delta);
+      btn.dataset.likes = newCount;
+      btn.querySelector('span').textContent = newCount || '';
+    };
+
+    window.autoResize = function(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    };
+
+    /* ── Feed ── */
+    let allPosts = [];
+
+    function loadFeed() {
+      const postsRef  = query(ref(db, 'posts'), orderByChild('createdAt'), limitToLast(50));
+      const feedEl    = document.getElementById('feedPosts');
+      const emptyEl   = document.getElementById('feedEmpty');
+      const loadingEl = document.getElementById('feedLoading');
+
+      onValue(postsRef, (snap) => {
+        loadingEl.style.display = 'none';
+        allPosts = [];
+
+        if (!snap.exists()) {
+          emptyEl.style.display = 'block';
+          feedEl.innerHTML = '';
+          return;
+        }
+
+        emptyEl.style.display = 'none';
+        snap.forEach(c => allPosts.push({ id: c.key, ...c.val() }));
+        allPosts.reverse();
+        renderFeed();
+      }, (err) => {
+        loadingEl.style.display = 'none';
+        feedEl.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px;">Could not load posts. Check Firebase rules.</p>';
+        console.error(err);
+      });
+    }
+
+    function renderFeed() {
+      const feedEl = document.getElementById('feedPosts');
+      feedEl.innerHTML = '';
+
+      let posts = [...allPosts];
+      if (currentTab === 'trending') {
+        posts = posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      }
+
+      let ctaInserted = false;
+      posts.forEach((post, i) => {
+        feedEl.appendChild(buildPostCard(post.id, post));
+        if (i === 2 && !currentUser && !ctaInserted) {
+          ctaInserted = true;
+          const cta = document.createElement('div');
+          cta.className = 'join-card';
+          cta.innerHTML = `
+            <img src="grey-hat.png" class="join-card-hat-img" alt="" />
+            <h3 class="join-card-title">Pick up your hat and join in.</h3>
+            <p class="join-card-sub">Create a free anonymous handle in seconds.<br>No email. No phone. No ID. Ever.</p>
+            <a href="#" class="join-card-btn" onclick="openModal(); return false;">Create your hat — it's free</a>`;
+          feedEl.appendChild(cta);
+        }
+      });
+    }
+
+    window.switchTab = function(el, tab) {
+      document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      currentTab = tab;
+      renderFeed();
+    };
+
+    /* ── Init ── */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadFeed);
+    } else {
+      loadFeed();
+    }
+
+  </script>
+</body>
+</html>
