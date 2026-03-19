@@ -89,14 +89,18 @@
       pointer-events: none;
     }
     #splash-hat img {
-      width: min(70vw, 520px);
-      opacity: 0.18;
-      filter: grayscale(30%) blur(1px);
-      animation: splashHatDrift 6s ease-in-out infinite;
+      width: min(95vw, 900px);
+      opacity: 0.13;
+      filter: grayscale(20%) blur(0.5px);
+      animation: splashHatDrift 7s ease-in-out infinite;
+      transform-origin: center center;
     }
     @keyframes splashHatDrift {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50%       { transform: translateY(-14px) scale(1.02); }
+      0%   { transform: translateY(0px)   scale(1)    rotate(-2deg); }
+      25%  { transform: translateY(-22px) scale(1.03) rotate(0deg);  }
+      50%  { transform: translateY(-38px) scale(1.05) rotate(2deg);  }
+      75%  { transform: translateY(-18px) scale(1.02) rotate(0.5deg);}
+      100% { transform: translateY(0px)   scale(1)    rotate(-2deg); }
     }
 
     /* vignette over the hat */
@@ -309,6 +313,25 @@
       text-align: center;
       padding: 120px 24px 80px;
       overflow: hidden;
+    }
+
+    /* Giant background hat behind hero content */
+    .hero-bg-hat {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -52%);
+      width: min(110vw, 1100px);
+      opacity: 0.055;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(2px);
+      animation: heroBgHatFloat 9s ease-in-out infinite;
+    }
+    @keyframes heroBgHatFloat {
+      0%, 100% { transform: translate(-50%, -52%) scale(1)    rotate(-1deg); }
+      40%      { transform: translate(-50%, -55%) scale(1.02) rotate(0.5deg);}
+      70%      { transform: translate(-50%, -50%) scale(1.01) rotate(-0.5deg);}
     }
 
     .hero-hat-img {
@@ -1091,7 +1114,448 @@
     .fade-4 { animation: fadeUp 0.7s ease both 0.55s; }
     .fade-5 { animation: fadeUp 0.7s ease both 0.7s; }
 
-    /* ── Responsive ── */
+    /* ── Search Bar ── */
+    .search-wrap {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .search-bar {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px 12px 44px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .search-bar:focus { outline: none; border-color: var(--border-md); }
+    .search-bar::placeholder { color: var(--dimmed); }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--dimmed);
+      pointer-events: none;
+    }
+    .search-clear {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--dimmed);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      line-height: 1;
+      display: none;
+    }
+    .search-clear.visible { display: block; }
+    .search-results-info {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 4px 2px 8px;
+      display: none;
+    }
+    .search-results-info.visible { display: block; }
+
+    /* ── Groups Nav Link ── */
+    .nav-groups-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nav-groups-btn:hover { color: var(--text); border-color: var(--border-md); }
+
+    /* ── Groups Panel (full-screen overlay) ── */
+    #groupsPanel {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: var(--bg);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #groupsPanel.open { display: flex; }
+
+    .groups-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,13,13,0.95);
+      backdrop-filter: blur(12px);
+      flex-shrink: 0;
+    }
+    .groups-nav-title {
+      font-family: var(--font-head);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .groups-nav-title img { width: 28px; height: 28px; object-fit: contain; }
+    .groups-back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .groups-back-btn:hover { color: var(--text); background: var(--bg3); }
+
+    .groups-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar: group list */
+    .groups-sidebar {
+      width: 300px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .groups-sidebar-header {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .groups-sidebar-title {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .btn-create-group {
+      width: 100%;
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px dashed var(--border-md);
+      background: transparent;
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-create-group:hover { background: var(--bg3); border-color: var(--accent); }
+
+    .group-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .group-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s;
+      margin-bottom: 2px;
+    }
+    .group-item:hover { background: var(--bg3); }
+    .group-item.active { background: var(--bg3); border: 1px solid var(--border-md); }
+    .group-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .group-info { flex: 1; min-width: 0; }
+    .group-name {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .group-meta {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    .group-online-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4caf6a;
+      display: inline-block;
+      animation: pulse-online 2s ease-in-out infinite;
+    }
+    @keyframes pulse-online {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* Main chat area */
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--muted);
+    }
+    .chat-empty img { width: 64px; height: 64px; object-fit: contain; opacity: 0.2; }
+    .chat-empty h3 { font-family: var(--font-head); font-size: 20px; color: var(--text); }
+    .chat-empty p  { font-size: 14px; color: var(--muted); text-align: center; max-width: 320px; line-height: 1.6; }
+
+    .chat-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      background: var(--bg2);
+    }
+    .chat-header-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .chat-header-info { flex: 1; }
+    .chat-header-name {
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .chat-header-sub { font-size: 12px; color: var(--muted); }
+    .chat-header-members {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      scroll-behavior: smooth;
+    }
+
+    /* AOL-style message bubbles */
+    .chat-msg {
+      display: flex;
+      gap: 10px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: background 0.15s;
+      align-items: flex-start;
+    }
+    .chat-msg:hover { background: rgba(255,255,255,0.025); }
+    .chat-msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-top: 2px;
+    }
+    .chat-msg-avatar img { width: 20px; height: 20px; object-fit: contain; }
+    .chat-msg-content { flex: 1; min-width: 0; }
+    .chat-msg-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    .chat-msg-user {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .chat-msg-time { font-size: 11px; color: var(--dimmed); }
+    .chat-msg-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.55;
+      word-wrap: break-word;
+    }
+
+    /* System messages */
+    .chat-msg.system {
+      justify-content: center;
+      padding: 6px;
+    }
+    .chat-msg.system .chat-msg-text {
+      font-size: 12px;
+      color: var(--dimmed);
+      font-style: italic;
+      text-align: center;
+    }
+
+    .chat-input-area {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+    .chat-input-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .chat-input-avatar img { width: 22px; height: 22px; object-fit: contain; }
+    .chat-input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      resize: none;
+      min-height: 42px;
+      max-height: 120px;
+      overflow-y: auto;
+      transition: border-color 0.2s;
+    }
+    .chat-input:focus { outline: none; border-color: var(--border-md); }
+    .chat-input::placeholder { color: var(--dimmed); }
+    .chat-send-btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity 0.2s, transform 0.15s;
+      height: 42px;
+    }
+    .chat-send-btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .chat-send-btn:disabled { opacity: 0.3; cursor: default; }
+
+    .chat-guest-bar {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .chat-guest-bar p { font-size: 13px; color: var(--muted); }
+    .chat-guest-bar a { color: var(--accent); text-decoration: none; }
+    .chat-guest-bar a:hover { text-decoration: underline; }
+
+    /* Create Group Modal */
+    #createGroupModal .modal-box { max-width: 400px; }
+    .group-emoji-picker {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .emoji-opt {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: var(--bg3);
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .emoji-opt:hover { transform: scale(1.1); }
+    .emoji-opt.selected { border-color: var(--accent); }
+
+    /* Mobile: stack groups layout */
+    @media (max-width: 700px) {
+      .groups-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        max-height: 220px;
+      }
+      .groups-body { flex-direction: column; }
+    }
     @media (max-width: 600px) {
       nav { padding: 12px 20px; }
       .nav-wordmark { display: none; }
@@ -1129,6 +1593,7 @@
     </a>
     <div class="nav-right" id="navRight">
       <a href="boards.html" class="btn-ghost" style="border:none;padding:8px 12px;">Boards</a>
+      <button class="btn-ghost" onclick="openGroups()" style="border:none;padding:8px 12px;">💬 Groups</button>
       <button class="btn-ghost" onclick="openLoginModal()">Log in</button>
       <button class="btn-primary" onclick="openModal()">Join free</button>
     </div>
@@ -1136,15 +1601,18 @@
 
   <!-- ── Hero ── -->
   <section class="hero">
-    <img src="grey-hat.png" alt="Hats Off" class="hero-hat-img fade-1" />
-    <p class="hero-tag fade-1">Welcome to Hats Off Social</p>
-    <h1 class="hero-headline fade-2">Be <span>whoever</span><br>you want.</h1>
-    <p class="hero-sub fade-3">No age checks. No verification. No real names.<br>Just a community of free thinkers behind their hats.</p>
-    <div class="hero-cta fade-4">
+    <!-- Giant atmospheric background hat -->
+    <img src="grey-hat.png" alt="" class="hero-bg-hat" aria-hidden="true" />
+
+    <img src="grey-hat.png" alt="Hats Off" class="hero-hat-img fade-1" style="position:relative;z-index:1;" />
+    <p class="hero-tag fade-1" style="position:relative;z-index:1;">Welcome to Hats Off Social</p>
+    <h1 class="hero-headline fade-2" style="position:relative;z-index:1;">Be <span>whoever</span><br>you want.</h1>
+    <p class="hero-sub fade-3" style="position:relative;z-index:1;">No age checks. No verification. No real names.<br>Just a community of free thinkers behind their hats.</p>
+    <div class="hero-cta fade-4" style="position:relative;z-index:1;">
       <a href="#" class="btn-hero" onclick="openModal(); return false;">Put your hat on — it's free</a>
       <a href="#feed" class="btn-ghost-hero">See what's happening →</a>
     </div>
-    <div class="hero-stats fade-5">
+    <div class="hero-stats fade-5" style="position:relative;z-index:1;">
       <div class="stat">
         <div class="stat-num">100%</div>
         <div class="stat-label">Anonymous</div>
@@ -1174,6 +1642,14 @@
       <h2 class="feed-title">What's happening now</h2>
       <p class="feed-subtitle">Real thoughts from real strangers. No names required.</p>
     </div>
+
+    <!-- Search bar -->
+    <div class="search-wrap">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="search-bar" id="searchBar" placeholder="Search posts by keyword, username, or #board…" oninput="onSearchInput(this)" />
+      <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+    </div>
+    <div class="search-results-info" id="searchInfo"></div>
 
     <!-- Compose bar -->
     <div class="compose-wrap" id="composeWrap">
@@ -1330,6 +1806,111 @@
       <div class="modal-error" id="loginGeneralError">Couldn't find that account. Check your details.</div>
       <button class="modal-btn" onclick="submitLogin()">Put my hat on</button>
       <div class="modal-switch">No hat yet? <a href="#" onclick="openModal();return false;">Create one free</a></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       GROUPS PANEL (AOL-style chat rooms)
+  ══════════════════════════════════════════ -->
+  <div id="groupsPanel">
+    <!-- Groups nav bar -->
+    <div class="groups-nav">
+      <div class="groups-nav-title">
+        <img src="grey-hat.png" alt="" />
+        💬 Hat Rooms
+      </div>
+      <button class="groups-back-btn" onclick="closeGroups()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Close
+      </button>
+    </div>
+
+    <div class="groups-body">
+      <!-- Sidebar -->
+      <div class="groups-sidebar">
+        <div class="groups-sidebar-header">
+          <div class="groups-sidebar-title">Rooms</div>
+          <button class="btn-create-group" onclick="openCreateGroup()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create a room
+          </button>
+        </div>
+        <div class="group-list" id="groupList">
+          <div style="padding:20px;text-align:center;">
+            <div style="width:16px;height:16px;border:2px solid var(--border-md);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 8px;"></div>
+            <p style="font-size:12px;color:var(--dimmed);">Loading rooms…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Main -->
+      <div class="chat-main" id="chatMain">
+        <!-- Empty state -->
+        <div class="chat-empty" id="chatEmpty">
+          <img src="grey-hat.png" alt="" />
+          <h3>Pick a room</h3>
+          <p>Join any Hat Room to chat anonymously in real time. Or create your own.</p>
+          <button class="btn-primary" onclick="openCreateGroup()" style="margin-top:8px;">Create a room</button>
+        </div>
+
+        <!-- Active chat (hidden until room selected) -->
+        <div id="activeChat" style="display:none;flex-direction:column;flex:1;overflow:hidden;display:none;">
+          <div class="chat-header" id="chatHeader">
+            <div class="chat-header-icon" id="chatHeaderIcon"></div>
+            <div class="chat-header-info">
+              <div class="chat-header-name" id="chatHeaderName"></div>
+              <div class="chat-header-sub" id="chatHeaderSub"></div>
+            </div>
+            <div class="chat-header-members" id="chatHeaderMembers">
+              <div class="group-online-dot"></div>
+              <span id="chatMemberCount">0 online</span>
+            </div>
+          </div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <!-- Input for logged-in users -->
+          <div class="chat-input-area" id="chatInputArea" style="display:none;">
+            <div class="chat-input-avatar" id="chatInputAvatar">
+              <img src="grey-hat.png" alt="" id="chatInputAvatarImg" />
+            </div>
+            <textarea class="chat-input" id="chatInput" placeholder="Say something…" rows="1"
+              oninput="autoResize(this);document.getElementById('chatSendBtn').disabled=this.value.trim().length===0"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg();}"
+              maxlength="500"></textarea>
+            <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMsg()" disabled>Send</button>
+          </div>
+          <!-- Guest bar -->
+          <div class="chat-guest-bar" id="chatGuestBar" style="display:none;">
+            <p><a href="#" onclick="closeGroups();openModal();return false;">Join free</a> to chat in this room.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Create Group Modal ── -->
+  <div class="modal-overlay" id="createGroupModal">
+    <div class="modal-box" id="createGroupModalBox">
+      <button class="modal-close" onclick="closeCreateGroup()">×</button>
+      <h2 class="modal-title" style="text-align:left;margin-bottom:6px;">Create a Hat Room</h2>
+      <p class="modal-sub" style="text-align:left;margin-bottom:20px;">A public chat room anyone can join.</p>
+
+      <div class="modal-field">
+        <label class="modal-label">Room name</label>
+        <input class="modal-input" id="groupNameInput" type="text" placeholder="e.g. Crypto Night, AI Debates…" maxlength="40" onkeydown="if(event.key==='Enter')submitCreateGroup()" />
+        <div class="modal-error" id="groupNameError">Please enter a room name (3–40 chars).</div>
+      </div>
+
+      <div class="modal-field">
+        <label class="modal-label">Pick an icon</label>
+        <div class="group-emoji-picker" id="groupEmojiPicker"></div>
+      </div>
+
+      <div class="modal-field">
+        <label class="modal-label">Topic (optional)</label>
+        <input class="modal-input" id="groupTopicInput" type="text" placeholder="What's this room about?" maxlength="80" />
+      </div>
+
+      <button class="modal-btn" onclick="submitCreateGroup()">Create room 🎩</button>
     </div>
   </div>
 
@@ -1598,6 +2179,7 @@
       /* Swap nav */
       document.getElementById('navRight').innerHTML =
         `<div style="display:flex;align-items:center;gap:10px;">
+          <button class="btn-ghost" onclick="openGroups()" style="border:none;padding:8px 12px;">💬 Groups</button>
           <div style="width:34px;height:34px;border-radius:50%;background:${c.bg};display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);overflow:hidden;">
             <img src="grey-hat.png" style="width:22px;height:22px;object-fit:contain;filter:${c.filter === 'none' ? 'none' : c.filter};" />
           </div>
@@ -1878,6 +2460,38 @@
     }
 
     function renderFeed() {
+      /* This base function is overridden below by the search-aware version */
+    }
+
+    window.switchTab = function(el, tab) {
+      document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      currentTab = tab;
+      renderFeed();
+    };
+
+    /* ════════════════════════════════════
+       SEARCH
+    ════════════════════════════════════ */
+    let searchQuery = '';
+
+    window.onSearchInput = function(el) {
+      searchQuery = el.value.trim().toLowerCase();
+      document.getElementById('searchClear').classList.toggle('visible', searchQuery.length > 0);
+      renderFeed();
+    };
+
+    window.clearSearch = function() {
+      const bar = document.getElementById('searchBar');
+      bar.value = '';
+      searchQuery = '';
+      document.getElementById('searchClear').classList.remove('visible');
+      document.getElementById('searchInfo').classList.remove('visible');
+      renderFeed();
+    };
+
+    /* Override renderFeed to support search filtering */
+    renderFeed = function() {
       const feedEl = document.getElementById('feedPosts');
       feedEl.innerHTML = '';
 
@@ -1886,10 +2500,36 @@
         posts = posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
       }
 
+      /* Apply search filter */
+      if (searchQuery) {
+        posts = posts.filter(p => {
+          return (
+            (p.body     && p.body.toLowerCase().includes(searchQuery))     ||
+            (p.username && p.username.toLowerCase().includes(searchQuery)) ||
+            (p.board    && p.board.toLowerCase().includes(searchQuery))
+          );
+        });
+        const infoEl = document.getElementById('searchInfo');
+        infoEl.textContent = posts.length === 0
+          ? `No posts found for "${searchQuery}"`
+          : `${posts.length} result${posts.length === 1 ? '' : 's'} for "${searchQuery}"`;
+        infoEl.classList.add('visible');
+      } else {
+        document.getElementById('searchInfo').classList.remove('visible');
+      }
+
+      if (posts.length === 0 && searchQuery) {
+        feedEl.innerHTML = `<div style="text-align:center;padding:40px 20px;">
+          <img src="grey-hat.png" alt="" style="width:50px;height:50px;object-fit:contain;margin:0 auto 14px;display:block;opacity:0.18;" />
+          <p style="color:var(--muted);font-size:15px;">No matches found. Try a different keyword.</p>
+        </div>`;
+        return;
+      }
+
       let ctaInserted = false;
       posts.forEach((post, i) => {
         feedEl.appendChild(buildPostCard(post.id, post));
-        if (i === 2 && !currentUser && !ctaInserted) {
+        if (i === 2 && !currentUser && !ctaInserted && !searchQuery) {
           ctaInserted = true;
           const cta = document.createElement('div');
           cta.className = 'join-card';
@@ -1901,13 +2541,263 @@
           feedEl.appendChild(cta);
         }
       });
+    };
+
+    /* ════════════════════════════════════
+       GROUPS / CHAT ROOMS
+    ════════════════════════════════════ */
+    const GROUP_EMOJIS = ['🎩','💬','🔥','🌙','⚡','🌊','🎭','🕵️','🚀','💡','🧠','🎮','💎','🌿','🎯','🦊'];
+    let selectedGroupEmoji = '🎩';
+    let activeGroupId      = null;
+    let chatMsgListener    = null;
+    let groupsListener     = null;
+
+    window.openGroups = function() {
+      document.getElementById('groupsPanel').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      loadGroups();
+    };
+
+    window.closeGroups = function() {
+      document.getElementById('groupsPanel').classList.remove('open');
+      document.body.style.overflow = '';
+      /* Detach chat listener */
+      if (chatMsgListener) { chatMsgListener(); chatMsgListener = null; }
+    };
+
+    /* Load groups list from Firebase */
+    function loadGroups() {
+      const groupsRef = query(ref(db, 'groups'), orderByChild('createdAt'));
+      if (groupsListener) groupsListener();
+      groupsListener = onValue(groupsRef, (snap) => {
+        const listEl = document.getElementById('groupList');
+        listEl.innerHTML = '';
+        if (!snap.exists()) {
+          listEl.innerHTML = '<p style="font-size:12px;color:var(--dimmed);padding:16px;text-align:center;">No rooms yet. Create one!</p>';
+          return;
+        }
+        const groups = [];
+        snap.forEach(c => groups.push({ id: c.key, ...c.val() }));
+        groups.reverse();
+        groups.forEach(g => {
+          const el = document.createElement('div');
+          el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
+          el.dataset.groupId = g.id;
+          el.innerHTML = `
+            <div class="group-icon" style="background:${g.bg || '#222'};">${g.emoji || '🎩'}</div>
+            <div class="group-info">
+              <div class="group-name">${safe(g.name)}</div>
+              <div class="group-meta">
+                <span class="group-online-dot"></span>
+                <span>${g.msgCount || 0} messages</span>
+              </div>
+            </div>`;
+          el.onclick = () => openRoom(g);
+          listEl.appendChild(el);
+        });
+      });
     }
 
-    window.switchTab = function(el, tab) {
-      document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
-      el.classList.add('active');
-      currentTab = tab;
-      renderFeed();
+    /* Open a chat room */
+    window.openRoom = function(group) {
+      activeGroupId = group.id;
+
+      /* Update sidebar highlight */
+      document.querySelectorAll('.group-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.groupId === group.id);
+      });
+
+      /* Show active chat, hide empty */
+      document.getElementById('chatEmpty').style.display = 'none';
+      const activeChat = document.getElementById('activeChat');
+      activeChat.style.display = 'flex';
+      activeChat.style.flexDirection = 'column';
+      activeChat.style.flex = '1';
+      activeChat.style.overflow = 'hidden';
+
+      /* Set header */
+      const icon = document.getElementById('chatHeaderIcon');
+      icon.textContent = group.emoji || '🎩';
+      icon.style.background = group.bg || '#222';
+      document.getElementById('chatHeaderName').textContent = group.name;
+      document.getElementById('chatHeaderSub').textContent = group.topic || 'Public room · Anyone can join';
+
+      /* Show input or guest bar */
+      document.getElementById('chatInputArea').style.display = currentUser ? 'flex' : 'none';
+      document.getElementById('chatGuestBar').style.display  = currentUser ? 'none' : 'flex';
+
+      /* Style input avatar */
+      if (currentUser) {
+        const c = currentUser.colour;
+        document.getElementById('chatInputAvatar').style.background = c.bg;
+        document.getElementById('chatInputAvatarImg').style.filter  = c.filter === 'none' ? 'none' : c.filter;
+      }
+
+      /* Detach previous listener */
+      if (chatMsgListener) { chatMsgListener(); chatMsgListener = null; }
+
+      /* Load messages in real time */
+      const msgsRef = query(ref(db, 'chatMessages/' + group.id), orderByChild('createdAt'), limitToLast(100));
+      const msgEl   = document.getElementById('chatMessages');
+      msgEl.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--dimmed);">Loading…</div>';
+
+      chatMsgListener = onValue(msgsRef, (snap) => {
+        msgEl.innerHTML = '';
+        if (!snap.exists()) {
+          msgEl.innerHTML = `<div style="text-align:center;padding:30px;font-size:13px;color:var(--dimmed);">
+            Be the first to say something in <strong style="color:var(--muted)">${safe(group.name)}</strong> 🎩
+          </div>`;
+          return;
+        }
+        const msgs = [];
+        snap.forEach(c => msgs.push({ id: c.key, ...c.val() }));
+        msgs.forEach(m => {
+          msgEl.appendChild(buildChatMessage(m));
+        });
+        /* Scroll to bottom */
+        msgEl.scrollTop = msgEl.scrollHeight;
+      });
+    };
+
+    /* Build a single chat message DOM element */
+    function buildChatMessage(m) {
+      if (m.system) {
+        const el = document.createElement('div');
+        el.className = 'chat-msg system';
+        el.innerHTML = `<div class="chat-msg-text">${safe(m.body)}</div>`;
+        return el;
+      }
+      const c = HAT_COLOURS.find(h => h.id === m.colourId) || HAT_COLOURS[8];
+      const el = document.createElement('div');
+      el.className = 'chat-msg';
+      el.innerHTML = `
+        <div class="chat-msg-avatar" style="background:${c.bg};">
+          <img src="grey-hat.png" alt="" style="filter:${c.filter === 'none' ? 'none' : c.filter};" />
+        </div>
+        <div class="chat-msg-content">
+          <div class="chat-msg-header">
+            <span class="chat-msg-user" style="color:${getHatAccentColor(m.colourId)}">${safe(m.username)}</span>
+            <span class="chat-msg-time">${timeAgo(m.createdAt)}</span>
+          </div>
+          <div class="chat-msg-text">${safe(m.body)}</div>
+        </div>`;
+      return el;
+    }
+
+    /* Give each hat colour a distinct accent for usernames in chat */
+    function getHatAccentColor(colourId) {
+      const map = {
+        green: '#6dbf82', purple: '#9b8dc8', red: '#c07070', blue: '#6ba0c0',
+        gold: '#c8a84a', teal: '#5abfb0', pink: '#c088b8', orange: '#c89060',
+        grey: '#c8c4be', slate: '#8098b8'
+      };
+      return map[colourId] || '#c8c4be';
+    }
+
+    /* Send a chat message */
+    window.sendChatMsg = async function() {
+      if (!currentUser || !activeGroupId) return;
+      const input = document.getElementById('chatInput');
+      const text  = input.value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('chatSendBtn');
+      btn.disabled = true;
+
+      try {
+        await push(ref(db, 'chatMessages/' + activeGroupId), {
+          username:  currentUser.username,
+          colourId:  currentUser.colourId,
+          body:      text,
+          createdAt: serverTimestamp()
+        });
+        /* Increment message count on group */
+        runTransaction(ref(db, 'groups/' + activeGroupId + '/msgCount'), cur => (cur || 0) + 1);
+        input.value = '';
+        input.style.height = 'auto';
+      } catch(e) {
+        showToast('Error sending — try again.');
+        console.error(e);
+      }
+      btn.disabled = false;
+    };
+
+    /* ── Create Group Modal ── */
+    window.openCreateGroup = function() {
+      if (!currentUser) { closeGroups(); openModal(); return; }
+      /* Build emoji picker */
+      const grid = document.getElementById('groupEmojiPicker');
+      grid.innerHTML = '';
+      selectedGroupEmoji = '🎩';
+      GROUP_EMOJIS.forEach(e => {
+        const el = document.createElement('div');
+        el.className = 'emoji-opt' + (e === selectedGroupEmoji ? ' selected' : '');
+        el.textContent = e;
+        el.onclick = () => {
+          selectedGroupEmoji = e;
+          document.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
+          el.classList.add('selected');
+        };
+        grid.appendChild(el);
+      });
+      document.getElementById('groupNameInput').value  = '';
+      document.getElementById('groupTopicInput').value = '';
+      document.getElementById('groupNameError').classList.remove('show');
+      document.getElementById('groupNameInput').classList.remove('error');
+      document.getElementById('createGroupModal').classList.add('open');
+    };
+
+    window.closeCreateGroup = function() {
+      document.getElementById('createGroupModal').classList.remove('open');
+    };
+
+    document.getElementById('createGroupModal').addEventListener('click', function(e) {
+      if (e.target === this) window.closeCreateGroup();
+    });
+
+    /* Bg colours to cycle through for room icons */
+    const GROUP_BG_COLORS = ['#1e2a1e','#1e1e2e','#2a1e1e','#1e2428','#22201e','#1e2624','#28202a','#261e18'];
+    let groupBgIdx = 0;
+
+    window.submitCreateGroup = async function() {
+      const name  = document.getElementById('groupNameInput').value.trim();
+      const topic = document.getElementById('groupTopicInput').value.trim();
+      if (!name || name.length < 3) {
+        document.getElementById('groupNameError').classList.add('show');
+        document.getElementById('groupNameInput').classList.add('error');
+        return;
+      }
+      const btn = document.querySelector('#createGroupModal .modal-btn');
+      btn.disabled = true; btn.textContent = 'Creating…';
+
+      try {
+        const newRef = await push(ref(db, 'groups'), {
+          name,
+          topic:     topic || '',
+          emoji:     selectedGroupEmoji,
+          bg:        GROUP_BG_COLORS[groupBgIdx++ % GROUP_BG_COLORS.length],
+          createdBy: currentUser.username,
+          msgCount:  0,
+          createdAt: serverTimestamp()
+        });
+        /* Post system message */
+        await push(ref(db, 'chatMessages/' + newRef.key), {
+          system: true,
+          body: `🎩 Room created by ${currentUser.username}. Welcome!`,
+          createdAt: serverTimestamp()
+        });
+        window.closeCreateGroup();
+        showToast('🎩 Room created! Opening it now…');
+        /* Wait a beat then open it */
+        setTimeout(() => {
+          const groupData = { id: newRef.key, name, topic, emoji: selectedGroupEmoji, bg: GROUP_BG_COLORS[(groupBgIdx-1) % GROUP_BG_COLORS.length] };
+          openRoom(groupData);
+        }, 600);
+      } catch(e) {
+        showToast('Error creating room — try again.');
+        console.error(e);
+      }
+      btn.disabled = false; btn.textContent = 'Create room 🎩';
     };
 
     /* ── Init ── */
