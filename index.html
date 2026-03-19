@@ -1854,7 +1854,7 @@
         </div>
 
         <!-- Active chat (hidden until room selected) -->
-        <div id="activeChat" style="display:none;flex-direction:column;flex:1;overflow:hidden;display:none;">
+        <div id="activeChat" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
           <div class="chat-header" id="chatHeader">
             <div class="chat-header-icon" id="chatHeaderIcon"></div>
             <div class="chat-header-info">
@@ -1863,7 +1863,7 @@
             </div>
             <div class="chat-header-members" id="chatHeaderMembers">
               <div class="group-online-dot"></div>
-              <span id="chatMemberCount">0 online</span>
+              <span id="chatMemberCount">live</span>
             </div>
           </div>
           <div class="chat-messages" id="chatMessages"></div>
@@ -2607,55 +2607,82 @@
         el.classList.toggle('active', el.dataset.groupId === group.id);
       });
 
-      /* Show active chat, hide empty */
-      document.getElementById('chatEmpty').style.display = 'none';
+      /* Show active chat, hide empty state */
+      document.getElementById('chatEmpty').style.display    = 'none';
       const activeChat = document.getElementById('activeChat');
-      activeChat.style.display = 'flex';
-      activeChat.style.flexDirection = 'column';
-      activeChat.style.flex = '1';
-      activeChat.style.overflow = 'hidden';
+      activeChat.style.display        = 'flex';
+      activeChat.style.flexDirection  = 'column';
+      activeChat.style.flex           = '1';
+      activeChat.style.overflow       = 'hidden';
 
       /* Set header */
       const icon = document.getElementById('chatHeaderIcon');
-      icon.textContent = group.emoji || '🎩';
+      icon.textContent    = group.emoji || '🎩';
       icon.style.background = group.bg || '#222';
       document.getElementById('chatHeaderName').textContent = group.name;
-      document.getElementById('chatHeaderSub').textContent = group.topic || 'Public room · Anyone can join';
+      document.getElementById('chatHeaderSub').textContent  = group.topic || 'Public room · Anyone can join';
 
       /* Show input or guest bar */
       document.getElementById('chatInputArea').style.display = currentUser ? 'flex' : 'none';
-      document.getElementById('chatGuestBar').style.display  = currentUser ? 'none' : 'flex';
+      document.getElementById('chatGuestBar').style.display  = currentUser ? 'none'  : 'flex';
 
       /* Style input avatar */
       if (currentUser) {
         const c = currentUser.colour;
-        document.getElementById('chatInputAvatar').style.background = c.bg;
-        document.getElementById('chatInputAvatarImg').style.filter  = c.filter === 'none' ? 'none' : c.filter;
+        document.getElementById('chatInputAvatar').style.background   = c.bg;
+        document.getElementById('chatInputAvatarImg').style.filter    = c.filter === 'none' ? 'none' : c.filter;
+        /* Re-enable send button area */
+        document.getElementById('chatInput').value   = '';
+        document.getElementById('chatSendBtn').disabled = true;
       }
 
       /* Detach previous listener */
       if (chatMsgListener) { chatMsgListener(); chatMsgListener = null; }
 
-      /* Load messages in real time */
-      const msgsRef = query(ref(db, 'chatMessages/' + group.id), orderByChild('createdAt'), limitToLast(100));
-      const msgEl   = document.getElementById('chatMessages');
+      /* Clear messages and show loading */
+      const msgEl = document.getElementById('chatMessages');
       msgEl.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--dimmed);">Loading…</div>';
 
+      /* Track rendered message IDs to avoid duplicates */
+      const renderedIds = new Set();
+
+      /* Real-time message listener */
+      const msgsRef = query(ref(db, 'chatMessages/' + group.id), orderByChild('createdAt'), limitToLast(100));
+
       chatMsgListener = onValue(msgsRef, (snap) => {
-        msgEl.innerHTML = '';
         if (!snap.exists()) {
-          msgEl.innerHTML = `<div style="text-align:center;padding:30px;font-size:13px;color:var(--dimmed);">
-            Be the first to say something in <strong style="color:var(--muted)">${safe(group.name)}</strong> 🎩
-          </div>`;
+          msgEl.innerHTML = '<div style="text-align:center;padding:30px;font-size:13px;color:var(--dimmed);">Be the first to say something in <strong style="color:var(--muted)">' + safe(group.name) + '</strong> 🎩</div>';
           return;
         }
-        const msgs = [];
-        snap.forEach(c => msgs.push({ id: c.key, ...c.val() }));
-        msgs.forEach(m => {
-          msgEl.appendChild(buildChatMessage(m));
+
+        /* First load — render everything at once */
+        if (renderedIds.size === 0) {
+          msgEl.innerHTML = '';
+          snap.forEach(c => {
+            const m = { id: c.key, ...c.val() };
+            renderedIds.add(m.id);
+            msgEl.appendChild(buildChatMessage(m));
+          });
+          msgEl.scrollTop = msgEl.scrollHeight;
+          return;
+        }
+
+        /* Subsequent updates — only append new messages */
+        let hasNew = false;
+        snap.forEach(c => {
+          if (!renderedIds.has(c.key)) {
+            const m = { id: c.key, ...c.val() };
+            renderedIds.add(m.id);
+            msgEl.appendChild(buildChatMessage(m));
+            hasNew = true;
+          }
         });
-        /* Scroll to bottom */
-        msgEl.scrollTop = msgEl.scrollHeight;
+        if (hasNew) {
+          msgEl.scrollTop = msgEl.scrollHeight;
+        }
+      }, (err) => {
+        console.error('Chat listener error:', err);
+        msgEl.innerHTML = '<div style="text-align:center;padding:30px;font-size:13px;color:#c07070;">Could not load messages. Check Firebase rules.</div>';
       });
     };
 
