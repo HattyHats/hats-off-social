@@ -1179,8 +1179,8 @@
     }
     .nav-groups-btn:hover { color: var(--text); border-color: var(--border-md); }
 
-    /* ── Groups Panel (full-screen overlay) ── */
-    #groupsPanel {
+    /* ── Groups Panel & DMs Panel (full-screen overlay) ── */
+    #groupsPanel, #dmsPanel {
       position: fixed;
       inset: 0;
       z-index: 300;
@@ -1189,7 +1189,7 @@
       flex-direction: column;
       overflow: hidden;
     }
-    #groupsPanel.open { display: flex; }
+    #groupsPanel.open, #dmsPanel.open { display: flex; }
 
     .groups-nav {
       display: flex;
@@ -1809,6 +1809,68 @@
     </div>
   </div>
 
+  <!-- ── Notifications Modal ── -->
+  <div class="modal-overlay" id="notifModal" style="z-index:400;">
+    <div class="modal-box" style="max-width:480px;">
+      <button class="modal-close" onclick="closeNotifications()">×</button>
+      <h2 class="modal-title" style="text-align:left;margin-bottom:20px;">Notifications</h2>
+      <div id="notifList" style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       DMs PANEL (1-on-1 chat)
+  ══════════════════════════════════════════ -->
+  <div id="dmsPanel">
+    <div class="groups-nav">
+      <div class="groups-nav-title">
+        <img src="grey-hat.png" alt="" />
+        ✉️ Messages
+      </div>
+      <button class="groups-back-btn" onclick="closeDMs()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Close
+      </button>
+    </div>
+    <div class="groups-body">
+      <div class="groups-sidebar">
+        <div class="groups-sidebar-header">
+          <div class="groups-sidebar-title">Chats</div>
+          <button class="btn-create-group" onclick="promptNewDM()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Message
+          </button>
+        </div>
+        <div class="group-list" id="dmList"></div>
+      </div>
+      <div class="chat-main" id="dmMain">
+        <div class="chat-empty" id="dmEmpty">
+          <img src="grey-hat.png" alt="" />
+          <h3>Your Messages</h3>
+          <p>End-to-end anonymity. Send a message to any hat.</p>
+          <button class="btn-primary" onclick="promptNewDM()" style="margin-top:8px;">Start Chat</button>
+        </div>
+        <div id="activeDMChat" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+          <div class="chat-header" id="dmHeader">
+            <div class="chat-header-icon" id="dmHeaderIcon"></div>
+            <div class="chat-header-info">
+              <div class="chat-header-name" id="dmHeaderName"></div>
+              <div class="chat-header-sub" id="dmHeaderSub"></div>
+            </div>
+          </div>
+          <div class="chat-messages" id="dmMessages"></div>
+          <div class="chat-input-area" id="dmInputArea">
+            <textarea class="chat-input" id="dmInput" placeholder="Send a message…" rows="1"
+              oninput="autoResize(this);document.getElementById('dmSendBtn').disabled=this.value.trim().length===0"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDMMsg();}"
+              maxlength="500"></textarea>
+            <button class="chat-send-btn" id="dmSendBtn" onclick="sendDMMsg()" disabled>Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ══════════════════════════════════════════
        GROUPS PANEL (AOL-style chat rooms)
   ══════════════════════════════════════════ -->
@@ -1920,7 +1982,8 @@
   <script type="module">
     /* ── Firebase ── */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, push, query, orderByChild, limitToLast, onValue, runTransaction, serverTimestamp, get }
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, push, query, orderByChild, limitToLast, onValue, onChildAdded, onChildChanged, onChildRemoved, runTransaction, serverTimestamp, get, set, update, remove }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -1934,6 +1997,7 @@
     };
 
     const fbApp = initializeApp(firebaseConfig);
+    const auth  = getAuth(fbApp);
     const db    = getDatabase(fbApp);
 
     /* ── Helpers ── */
@@ -2036,7 +2100,7 @@
       if (e.key === 'Escape') { window.closeModal(); window.closeLoginModal(); }
     });
 
-    window.submitLogin = function() {
+    window.submitLogin = async function() {
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value;
       let valid = true;
@@ -2061,19 +2125,29 @@
       }
       if (!valid) return;
 
-      /* Load saved colour if exists, else random */
-      let colourId = 'grey';
-      try {
-        const saved = JSON.parse(localStorage.getItem('ho_user') || '{}');
-        if (saved.username === username && saved.colourId) colourId = saved.colourId;
-      } catch(e) {}
+      const btn = document.querySelector('#loginModal .modal-btn');
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
 
-      const colour = HAT_COLOURS.find(h => h.id === colourId) || HAT_COLOURS[8];
-      currentUser = { username, colour, colourId: colour.id };
-      try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: colour.id })); } catch(e) {}
-      window.closeLoginModal();
-      activateLoggedInState();
-      showToast('🎩 Hat\'s on, ' + username + '. Welcome back.');
+      try {
+        await signInWithEmailAndPassword(auth, username + '@hatsoff.local', password);
+        const userSnap = await get(ref(db, 'users/' + username));
+        let colourId = 'grey';
+        if (userSnap.exists()) {
+          colourId = userSnap.val().colourId || 'grey';
+        }
+        const colour = HAT_COLOURS.find(h => h.id === colourId) || HAT_COLOURS[8];
+        currentUser = { username, colour, colourId: colour.id };
+        try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: colour.id })); } catch(e) {}
+        window.closeLoginModal();
+        activateLoggedInState();
+        showToast('🎩 Hat\'s on, ' + username + '. Welcome back.');
+      } catch (err) {
+        document.getElementById('loginGeneralError').classList.add('show');
+        console.error(err);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Put my hat on';
     };
 
     /* ── Signup steps ── */
@@ -2141,12 +2215,30 @@
       window.showStep(2);
     };
 
-    window.finishSignup = function() {
+    window.finishSignup = async function() {
       const username = document.getElementById('username').value.trim();
-      currentUser = { username, colour: selectedColour, colourId: selectedColour.id };
-      try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: selectedColour.id })); } catch(e) {}
-      document.getElementById('welcomeMsg').textContent = 'Welcome to Hats Off, ' + username + '. Your hat is on.';
-      window.showStep(3);
+      const password = document.getElementById('password').value;
+      const btn = document.querySelector('#step2 .modal-btn');
+      btn.disabled = true;
+      btn.textContent = 'Putting your hat on...';
+
+      try {
+        await createUserWithEmailAndPassword(auth, username + '@hatsoff.local', password);
+        await set(ref(db, 'users/' + username), {
+          username: username,
+          colourId: selectedColour.id,
+          createdAt: serverTimestamp()
+        });
+        currentUser = { username, colour: selectedColour, colourId: selectedColour.id };
+        try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: selectedColour.id })); } catch(e) {}
+        document.getElementById('welcomeMsg').textContent = 'Welcome to Hats Off, ' + username + '. Your hat is on.';
+        window.showStep(3);
+      } catch (err) {
+        showToast('Error creating account. Username might be taken.');
+        console.error(err);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Hats on — let\'s go 🎩';
     };
 
     window.startPosting = function() {
@@ -2156,20 +2248,27 @@
     };
 
     /* ── Restore session ── */
-    (function restoreSession() {
-      try {
-        const raw = localStorage.getItem('ho_user');
-        if (!raw) return;
-        const saved = JSON.parse(raw);
-        const colour = HAT_COLOURS.find(h => h.id === saved.colourId) || HAT_COLOURS[8];
-        currentUser = { username: saved.username, colour, colourId: colour.id };
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const username = user.email.split('@')[0];
+        const userSnap = await get(ref(db, 'users/' + username));
+        let colourId = 'grey';
+        if (userSnap.exists()) {
+          colourId = userSnap.val().colourId || 'grey';
+        }
+        const colour = HAT_COLOURS.find(h => h.id === colourId) || HAT_COLOURS[8];
+        currentUser = { username, colour, colourId: colour.id };
+        try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: colour.id })); } catch(e) {}
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', activateLoggedInState);
         } else {
           activateLoggedInState();
         }
-      } catch(e) {}
-    })();
+      } else {
+        currentUser = null;
+        try { localStorage.removeItem('ho_user'); } catch(e) {}
+      }
+    });
 
     /* ── Logged-in state ── */
     function activateLoggedInState() {
@@ -2180,6 +2279,8 @@
       document.getElementById('navRight').innerHTML =
         `<div style="display:flex;align-items:center;gap:10px;">
           <button class="btn-ghost" onclick="openGroups()" style="border:none;padding:8px 12px;">💬 Groups</button>
+          <button class="btn-ghost" onclick="openDMs()" style="border:none;padding:8px 12px;position:relative;">✉️ Messages <span id="navDMBadge" style="display:none;position:absolute;top:4px;right:4px;background:#c0564a;width:8px;height:8px;border-radius:50%;"></span></button>
+          <button class="btn-ghost" onclick="openNotifications()" style="border:none;padding:8px 12px;position:relative;">🔔 <span id="navNotifBadge" style="display:none;position:absolute;top:4px;right:4px;background:#c0564a;width:8px;height:8px;border-radius:50%;"></span></button>
           <div style="width:34px;height:34px;border-radius:50%;background:${c.bg};display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);overflow:hidden;">
             <img src="grey-hat.png" style="width:22px;height:22px;object-fit:contain;filter:${c.filter === 'none' ? 'none' : c.filter};" />
           </div>
@@ -2194,12 +2295,17 @@
       document.getElementById('composeAvatar').style.background = c.bg;
       const img = document.getElementById('composeHatImg');
       img.style.filter = c.filter === 'none' ? 'none' : c.filter;
+
+      if (typeof initDMListener === 'function') initDMListener();
+      if (typeof initNotifListener === 'function') initNotifListener();
     }
 
     window.logout = function() {
-      currentUser = null;
-      try { localStorage.removeItem('ho_user'); } catch(e) {}
-      location.reload();
+      signOut(auth).then(() => {
+        currentUser = null;
+        try { localStorage.removeItem('ho_user'); } catch(e) {}
+        location.reload();
+      });
     };
 
     /* ── Compose ── */
@@ -2288,6 +2394,9 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             Share
           </button>
+          <button class="post-action" onclick="openDMRoom('${safe(post.username)}')">
+            ✉️ DM
+          </button>
         </div>
         <div class="comment-section" id="comments-${postId}"></div>`;
 
@@ -2321,38 +2430,72 @@
     };
 
     function loadComments(postId, section) {
-      section.innerHTML = '<div class="comments-loading">Loading comments…</div>';
-
-      const composeHTML = currentUser
-        ? `<div class="comment-compose">
-            <div class="comment-avatar" style="background:${currentUser.colour.bg};">
-              <img src="grey-hat.png" alt="" style="filter:${currentUser.colour.filter === 'none' ? 'none' : currentUser.colour.filter};" />
-            </div>
-            <div class="comment-input-wrap">
-              <textarea class="comment-input" id="cinput-${postId}" placeholder="Write a comment…" rows="1"
-                oninput="autoResize(this);document.getElementById('csubmit-${postId}').disabled=this.value.trim().length===0"
-                maxlength="500"></textarea>
-              <div class="comment-actions-row">
-                <button class="btn-comment-submit" id="csubmit-${postId}" disabled
-                  onclick="submitComment('${postId}')">Reply</button>
+      if (!section.querySelector('.comment-list')) {
+        const composeHTML = currentUser
+          ? `<div class="comment-compose">
+              <div class="comment-avatar" style="background:${currentUser.colour.bg};">
+                <img src="grey-hat.png" alt="" style="filter:${currentUser.colour.filter === 'none' ? 'none' : currentUser.colour.filter};" />
               </div>
-            </div>
-          </div>`
-        : `<p class="comment-guest-nudge"><a href="#" onclick="openModal();return false;">Join free</a> to leave a comment.</p>`;
+              <div class="comment-input-wrap">
+                <textarea class="comment-input" id="cinput-${postId}" placeholder="Write a comment…" rows="1"
+                  oninput="autoResize(this);document.getElementById('csubmit-${postId}').disabled=this.value.trim().length===0"
+                  maxlength="500"></textarea>
+                <div class="comment-actions-row">
+                  <button class="btn-comment-submit" id="csubmit-${postId}" disabled
+                    onclick="submitComment('${postId}')">Reply</button>
+                </div>
+              </div>
+            </div>`
+          : `<p class="comment-guest-nudge"><a href="#" onclick="openModal();return false;">Join free</a> to leave a comment.</p>`;
+
+        section.innerHTML = composeHTML + `<div class="comments-loading">Loading comments…</div><div class="comment-list" style="display:none;"></div>`;
+      }
 
       const commentsRef = query(ref(db, 'comments/' + postId), orderByChild('createdAt'), limitToLast(50));
       onValue(commentsRef, (snap) => {
+        const loadingMsg = section.querySelector('.comments-loading');
+        if (loadingMsg) loadingMsg.remove();
+        
+        const listContainer = section.querySelector('.comment-list');
+        listContainer.style.display = 'flex';
+
         const list = [];
         if (snap.exists()) {
           snap.forEach(c => list.push({ id: c.key, ...c.val() }));
           list.reverse();
         }
 
-        const listHTML = list.length === 0
-          ? `<p style="font-size:13px;color:var(--dimmed);padding:6px 0 10px;">No comments yet.</p>`
-          : `<div class="comment-list">${list.map(c => buildCommentHTML(c, postId)).join('')}</div>`;
+        if (list.length === 0) {
+          if (!listContainer.querySelector('.empty-msg')) {
+            listContainer.innerHTML = `<p class="empty-msg" style="font-size:13px;color:var(--dimmed);padding:6px 0 10px;">No comments yet.</p>`;
+          }
+          return;
+        }
 
-        section.innerHTML = composeHTML + listHTML;
+        const emptyMsg = listContainer.querySelector('.empty-msg');
+        if (emptyMsg) emptyMsg.remove();
+
+        const currentChildren = Array.from(listContainer.children);
+        const idsToKeep = new Set(list.map(c => c.id));
+        currentChildren.forEach(child => {
+          if (!idsToKeep.has(child.id.replace('citem-', ''))) child.remove();
+        });
+
+        list.forEach(c => {
+          let existingItem = document.getElementById('citem-' + c.id);
+          if (!existingItem) {
+            const temp = document.createElement('div');
+            temp.innerHTML = buildCommentHTML(c, postId);
+            existingItem = temp.firstElementChild;
+          } else {
+             const likeBtn = existingItem.querySelector('.comment-like-btn');
+             if (likeBtn && likeBtn.dataset.likes !== String(c.likes || 0)) {
+               likeBtn.dataset.likes = c.likes || 0;
+               likeBtn.querySelector('span').textContent = c.likes || '';
+             }
+          }
+          listContainer.appendChild(existingItem);
+        });
       });
     }
 
@@ -2399,6 +2542,21 @@
         });
         /* Increment comment count on post */
         runTransaction(ref(db, 'posts/' + postId + '/comments'), cur => (cur || 0) + 1);
+
+        /* Notify post author */
+        const postSnap = await get(ref(db, 'posts/' + postId));
+        if (postSnap.exists()) {
+          const author = postSnap.val().username;
+          if (author !== currentUser.username) {
+            await push(ref(db, 'notifications/' + author), {
+              type: 'comment',
+              from: currentUser.username,
+              text: text,
+              createdAt: serverTimestamp(),
+              read: false
+            });
+          }
+        }
 
         input.value = '';
         input.style.height = 'auto';
@@ -2493,7 +2651,6 @@
     /* Override renderFeed to support search filtering */
     renderFeed = function() {
       const feedEl = document.getElementById('feedPosts');
-      feedEl.innerHTML = '';
 
       let posts = [...allPosts];
       if (currentTab === 'trending') {
@@ -2526,9 +2683,45 @@
         return;
       }
 
+      // Clear empty match state if it's there
+      if (feedEl.querySelector('div[style*="text-align:center"]')) {
+        feedEl.innerHTML = '';
+      }
+
+      const currentChildren = Array.from(feedEl.children);
+      const postIdsToKeep = new Set(posts.map(p => p.id));
+      
+      currentChildren.forEach(child => {
+        if (child.classList.contains('post-card') && !postIdsToKeep.has(child.dataset.postId)) {
+          child.remove();
+        }
+        if (child.classList.contains('join-card')) {
+          child.remove();
+        }
+      });
+
       let ctaInserted = false;
       posts.forEach((post, i) => {
-        feedEl.appendChild(buildPostCard(post.id, post));
+        let existingCard = Array.from(feedEl.children).find(c => c.dataset.postId === post.id);
+        
+        if (!existingCard) {
+          existingCard = buildPostCard(post.id, post);
+        } else {
+          const likeBtn = existingCard.querySelector('.like-btn');
+          const likeCount = existingCard.querySelector('.like-count');
+          const commentCount = existingCard.querySelector('.comment-count');
+          
+          if (likeBtn && likeBtn.dataset.likes !== String(post.likes || 0)) {
+            likeBtn.dataset.likes = post.likes || 0;
+            likeCount.textContent = post.likes || 0;
+          }
+          if (commentCount && commentCount.textContent !== String(post.comments || 0)) {
+            commentCount.textContent = post.comments || 0;
+          }
+        }
+        
+        feedEl.appendChild(existingCard);
+
         if (i === 2 && !currentUser && !ctaInserted && !searchQuery) {
           ctaInserted = true;
           const cta = document.createElement('div');
@@ -2571,28 +2764,50 @@
       if (groupsListener) groupsListener();
       groupsListener = onValue(groupsRef, (snap) => {
         const listEl = document.getElementById('groupList');
-        listEl.innerHTML = '';
         if (!snap.exists()) {
-          listEl.innerHTML = '<p style="font-size:12px;color:var(--dimmed);padding:16px;text-align:center;">No rooms yet. Create one!</p>';
+          listEl.innerHTML = '<p class="empty-msg" style="font-size:12px;color:var(--dimmed);padding:16px;text-align:center;">No rooms yet. Create one!</p>';
           return;
         }
+        
+        const emptyMsg = listEl.querySelector('.empty-msg');
+        if (emptyMsg) emptyMsg.remove();
+        
+        // Remove loading state if there
+        if (listEl.querySelector('div[style*="text-align:center"]')) {
+           listEl.innerHTML = '';
+        }
+
         const groups = [];
         snap.forEach(c => groups.push({ id: c.key, ...c.val() }));
         groups.reverse();
+        
+        const currentChildren = Array.from(listEl.children);
+        const idsToKeep = new Set(groups.map(g => g.id));
+        currentChildren.forEach(child => {
+           if (!idsToKeep.has(child.dataset.groupId)) child.remove();
+        });
+
         groups.forEach(g => {
-          const el = document.createElement('div');
-          el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
-          el.dataset.groupId = g.id;
-          el.innerHTML = `
-            <div class="group-icon" style="background:${g.bg || '#222'};">${g.emoji || '🎩'}</div>
-            <div class="group-info">
-              <div class="group-name">${safe(g.name)}</div>
-              <div class="group-meta">
-                <span class="group-online-dot"></span>
-                <span>${g.msgCount || 0} messages</span>
-              </div>
-            </div>`;
-          el.onclick = () => openRoom(g);
+          let el = Array.from(listEl.children).find(c => c.dataset.groupId === g.id);
+          if (!el) {
+            el = document.createElement('div');
+            el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
+            el.dataset.groupId = g.id;
+            el.innerHTML = `
+              <div class="group-icon" style="background:${g.bg || '#222'};">${g.emoji || '🎩'}</div>
+              <div class="group-info">
+                <div class="group-name">${safe(g.name)}</div>
+                <div class="group-meta">
+                  <span class="group-online-dot"></span>
+                  <span class="msg-count">${g.msgCount || 0} messages</span>
+                </div>
+              </div>`;
+            el.onclick = () => openRoom(g);
+          } else {
+             const msgCountSpan = el.querySelector('.msg-count');
+             if (msgCountSpan) msgCountSpan.textContent = (g.msgCount || 0) + ' messages';
+             el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
+          }
           listEl.appendChild(el);
         });
       });
@@ -2847,6 +3062,285 @@
         btn.disabled = false;
         btn.textContent = 'Create room 🎩';
       }
+    };
+
+    /* ════════════════════════════════════
+       DIRECT MESSAGES
+    ════════════════════════════════════ */
+    let activeDMUser = null;
+    let dmMsgListener = null;
+    let dmsListListener = null;
+
+    window.openDMs = function() {
+      if (!currentUser) return;
+      document.getElementById('dmsPanel').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      loadDMList();
+    };
+
+    window.closeDMs = function() {
+      document.getElementById('dmsPanel').classList.remove('open');
+      document.body.style.overflow = '';
+      if (dmMsgListener) { dmMsgListener(); dmMsgListener = null; }
+    };
+
+    function getDMRoomId(u1, u2) {
+      return [u1, u2].sort().join('_');
+    }
+
+    window.promptNewDM = function() {
+      const username = prompt("Enter the username of the person you want to message:");
+      if (username && username.trim()) {
+        openDMRoom(username.trim());
+      }
+    };
+
+    window.openDMRoom = async function(otherUsername) {
+      if (!currentUser) { openModal(); return; }
+      if (otherUsername === currentUser.username) { showToast("You can't message yourself."); return; }
+
+      document.getElementById('dmsPanel').classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      activeDMUser = otherUsername;
+      const roomId = getDMRoomId(currentUser.username, otherUsername);
+      
+      document.querySelectorAll('#dmList .group-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.dmUser === otherUsername);
+      });
+
+      document.getElementById('dmEmpty').style.display = 'none';
+      const activeChat = document.getElementById('activeDMChat');
+      activeChat.style.display = 'flex';
+
+      const uSnap = await get(ref(db, 'users/' + otherUsername));
+      let colourId = 'grey';
+      if (uSnap.exists() && uSnap.val().colourId) {
+        colourId = uSnap.val().colourId;
+      }
+      const c = HAT_COLOURS.find(h => h.id === colourId) || HAT_COLOURS[8];
+
+      const icon = document.getElementById('dmHeaderIcon');
+      icon.innerHTML = `<img src="grey-hat.png" style="width:20px;height:20px;object-fit:contain;filter:${c.filter === 'none' ? 'none' : c.filter};" />`;
+      icon.style.background = c.bg;
+      icon.style.borderRadius = '50%';
+      document.getElementById('dmHeaderName').textContent = otherUsername;
+      document.getElementById('dmHeaderSub').textContent = 'Direct Message';
+
+      document.getElementById('dmInput').value = '';
+      document.getElementById('dmSendBtn').disabled = true;
+
+      if (dmMsgListener) { dmMsgListener(); dmMsgListener = null; }
+
+      const msgEl = document.getElementById('dmMessages');
+      msgEl.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--dimmed);">Loading…</div>';
+
+      const renderedIds = new Set();
+      const msgsRef = query(ref(db, 'directMessages/' + roomId), orderByChild('createdAt'), limitToLast(100));
+      
+      dmMsgListener = onValue(msgsRef, (snap) => {
+        if (!snap.exists()) {
+          msgEl.innerHTML = '<div style="text-align:center;padding:30px;font-size:13px;color:var(--dimmed);">Say hi to <strong style="color:var(--text)">' + safe(otherUsername) + '</strong> 🎩</div>';
+          return;
+        }
+
+        if (renderedIds.size === 0) {
+          msgEl.innerHTML = '';
+        }
+
+        let hasNew = false;
+        snap.forEach(c => {
+          if (!renderedIds.has(c.key)) {
+            const m = { id: c.key, ...c.val() };
+            renderedIds.add(m.id);
+            msgEl.appendChild(buildChatMessage(m));
+            hasNew = true;
+          }
+        });
+        if (hasNew) {
+          msgEl.scrollTop = msgEl.scrollHeight;
+        }
+        
+        update(ref(db, 'userDMs/' + currentUser.username + '/' + otherUsername), { unread: 0 });
+      });
+    };
+
+    window.sendDMMsg = async function() {
+      if (!currentUser || !activeDMUser) return;
+      const input = document.getElementById('dmInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('dmSendBtn');
+      btn.disabled = true;
+      const roomId = getDMRoomId(currentUser.username, activeDMUser);
+      const ts = serverTimestamp();
+
+      try {
+        await push(ref(db, 'directMessages/' + roomId), {
+          username: currentUser.username,
+          colourId: currentUser.colourId,
+          body: text,
+          createdAt: ts
+        });
+
+        const updates = {};
+        updates['userDMs/' + currentUser.username + '/' + activeDMUser] = { lastMsg: text, ts: Date.now(), unread: 0 };
+        const rxRef = ref(db, 'userDMs/' + activeDMUser + '/' + currentUser.username);
+        const rxSnap = await get(rxRef);
+        let rxUnread = 1;
+        if (rxSnap.exists()) rxUnread = (rxSnap.val().unread || 0) + 1;
+        updates['userDMs/' + activeDMUser + '/' + currentUser.username] = { lastMsg: text, ts: Date.now(), unread: rxUnread };
+        await update(ref(db), updates);
+        
+        await push(ref(db, 'notifications/' + activeDMUser), {
+          type: 'dm',
+          from: currentUser.username,
+          text: text,
+          createdAt: ts,
+          read: false
+        });
+
+        input.value = '';
+        input.style.height = 'auto';
+      } catch(e) {
+        showToast('Error sending DM.');
+        console.error(e);
+      }
+      btn.disabled = false;
+    };
+
+    function loadDMList() {
+      if (!currentUser) return;
+      if (dmsListListener) dmsListListener();
+      
+      dmsListListener = onValue(ref(db, 'userDMs/' + currentUser.username), (snap) => {
+        const listEl = document.getElementById('dmList');
+        if (!snap.exists()) {
+          listEl.innerHTML = '<p class="empty-msg" style="font-size:12px;color:var(--dimmed);padding:16px;text-align:center;">No messages yet.</p>';
+          return;
+        }
+
+        const emptyMsg = listEl.querySelector('.empty-msg');
+        if (emptyMsg) emptyMsg.remove();
+
+        const chats = [];
+        let totalUnread = 0;
+        snap.forEach(c => {
+          chats.push({ username: c.key, ...c.val() });
+          totalUnread += (c.val().unread || 0);
+        });
+        chats.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+        const badge = document.getElementById('navDMBadge');
+        if (badge) badge.style.display = totalUnread > 0 ? 'block' : 'none';
+
+        const currentChildren = Array.from(listEl.children);
+        const idsToKeep = new Set(chats.map(g => g.username));
+        currentChildren.forEach(child => {
+           if (!idsToKeep.has(child.dataset.dmUser)) child.remove();
+        });
+
+        chats.forEach(async (chat) => {
+          let el = Array.from(listEl.children).find(c => c.dataset.dmUser === chat.username);
+          if (!el) {
+            el = document.createElement('div');
+            el.dataset.dmUser = chat.username;
+            el.onclick = () => openDMRoom(chat.username);
+            listEl.appendChild(el);
+            
+            get(ref(db, 'users/' + chat.username)).then(uSnap => {
+               let colourId = 'grey';
+               if (uSnap.exists() && uSnap.val().colourId) colourId = uSnap.val().colourId;
+               const c = HAT_COLOURS.find(h => h.id === colourId) || HAT_COLOURS[8];
+               
+               el.className = 'group-item' + (chat.username === activeDMUser ? ' active' : '');
+               el.innerHTML = `
+                <div class="group-icon" style="background:${c.bg}; border-radius:50%;"><img src="grey-hat.png" style="width:20px;height:20px;filter:${c.filter==='none'?'none':c.filter};" /></div>
+                <div class="group-info">
+                  <div class="group-name" style="font-family:var(--font-head);">${safe(chat.username)} ${chat.unread ? '<span style="color:#c0564a;font-size:10px;">●</span>' : ''}</div>
+                  <div class="group-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safe(chat.lastMsg)}</div>
+                </div>`;
+            });
+          } else {
+             el.className = 'group-item' + (chat.username === activeDMUser ? ' active' : '');
+             const nameEl = el.querySelector('.group-name');
+             if (nameEl) nameEl.innerHTML = `${safe(chat.username)} ${chat.unread ? '<span style="color:#c0564a;font-size:10px;">●</span>' : ''}`;
+             const metaEl = el.querySelector('.group-meta');
+             if (metaEl) metaEl.textContent = chat.lastMsg || '';
+          }
+        });
+      });
+    }
+
+    window.initDMListener = function() {
+      if (currentUser) loadDMList();
+    };
+
+    /* ════════════════════════════════════
+       NOTIFICATIONS
+    ════════════════════════════════════ */
+    let notifListener = null;
+
+    window.initNotifListener = function() {
+      if (!currentUser) return;
+      if (notifListener) notifListener();
+      
+      notifListener = onValue(query(ref(db, 'notifications/' + currentUser.username), orderByChild('createdAt'), limitToLast(30)), (snap) => {
+        const listEl = document.getElementById('notifList');
+        if (!listEl) return;
+        
+        if (!snap.exists()) {
+          listEl.innerHTML = '<p style="color:var(--dimmed);font-size:13px;">No notifications yet.</p>';
+          const badge = document.getElementById('navNotifBadge');
+          if (badge) badge.style.display = 'none';
+          return;
+        }
+
+        const notifs = [];
+        let unreadCount = 0;
+        snap.forEach(c => {
+          const n = { id: c.key, ...c.val() };
+          notifs.push(n);
+          if (!n.read) unreadCount++;
+        });
+        notifs.reverse();
+
+        const badge = document.getElementById('navNotifBadge');
+        if (badge) badge.style.display = unreadCount > 0 ? 'block' : 'none';
+
+        listEl.innerHTML = '';
+        notifs.forEach(n => {
+          const el = document.createElement('div');
+          el.style = `padding:12px;background:var(--bg3);border-radius:8px;border:1px solid ${n.read?'var(--border)':'var(--accent)'};cursor:pointer;`;
+          
+          let text = '';
+          if (n.type === 'comment') {
+            text = `<strong style="color:var(--text)">${safe(n.from)}</strong> commented on your post: "${safe(n.text)}"`;
+          } else if (n.type === 'dm') {
+            text = `<strong style="color:var(--text)">${safe(n.from)}</strong> sent you a message: "${safe(n.text)}"`;
+          }
+
+          el.innerHTML = `<div style="font-size:13px;color:var(--muted);">${text}</div><div style="font-size:10px;color:var(--dimmed);margin-top:4px;">${timeAgo(n.createdAt)}</div>`;
+          el.onclick = () => {
+             update(ref(db, 'notifications/' + currentUser.username + '/' + n.id), { read: true });
+             closeNotifications();
+             if (n.type === 'dm') openDMRoom(n.from);
+          };
+          listEl.appendChild(el);
+        });
+      });
+    };
+
+    window.openNotifications = function() {
+      if (!currentUser) return;
+      document.getElementById('notifModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeNotifications = function() {
+      document.getElementById('notifModal').classList.remove('open');
+      document.body.style.overflow = '';
     };
 
     /* ── Init ── */
