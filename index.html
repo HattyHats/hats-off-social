@@ -2277,7 +2277,44 @@
     }
 
     function authEmail(username) {
-      return username + '@hatsoff.local';
+      return username + '@hats-off-social.firebaseapp.com';
+    }
+
+    function authErrorMessage(err, context) {
+      const code = err && err.code;
+      const msg = err && err.message ? String(err.message) : '';
+      if (code === 'auth/email-already-in-use') {
+        return 'That username is already taken.';
+      }
+      if (code === 'auth/invalid-email') {
+        return 'That username cannot be used. Try letters, numbers, or underscores only.';
+      }
+      if (code === 'auth/weak-password') {
+        return 'Password must be at least 8 characters.';
+      }
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        return 'Wrong username or password.';
+      }
+      if (code === 'auth/user-not-found') {
+        return 'No account found for that username.';
+      }
+      if (code === 'auth/operation-not-allowed' || msg.includes('OPERATION_NOT_ALLOWED')) {
+        return 'Sign-in is not enabled. In Firebase Console → Authentication → Sign-in method, enable Email/Password.';
+      }
+      if (msg.includes('CONFIGURATION_NOT_FOUND')) {
+        return 'Firebase Authentication is not set up. In Firebase Console → Authentication, click Get started, then enable Email/Password.';
+      }
+      if (code === 'auth/network-request-failed') {
+        return 'Network error. Check your connection and try again.';
+      }
+      if (msg.includes('PERMISSION_DENIED') || code === 'PERMISSION_DENIED') {
+        return context === 'signup'
+          ? 'Account created but profile could not be saved. Check Firebase Realtime Database rules for /users.'
+          : 'Could not load your profile. Check Firebase Database rules.';
+      }
+      return context === 'signup'
+        ? 'Could not create your account. Please try again.'
+        : 'Could not log in. Please try again.';
     }
 
     /* ── Hat colour palette ── */
@@ -2404,6 +2441,7 @@
         activateLoggedInState();
         showToast('🎩 Hat\'s on, ' + username + '. Welcome back.');
       } catch (err) {
+        document.getElementById('loginGeneralError').textContent = authErrorMessage(err, 'login');
         document.getElementById('loginGeneralError').classList.add('show');
         console.error(err);
       }
@@ -2509,18 +2547,31 @@
 
       try {
         const cred = await createUserWithEmailAndPassword(auth, authEmail(username), password);
-        await set(ref(db, 'users/' + username), {
-          uid: cred.user.uid,
-          username: username,
-          colourId: selectedColour.id,
-          createdAt: serverTimestamp()
-        });
+        try {
+          await set(ref(db, 'users/' + username), {
+            uid: cred.user.uid,
+            username: username,
+            colourId: selectedColour.id,
+            createdAt: serverTimestamp()
+          });
+        } catch (dbErr) {
+          console.error(dbErr);
+          showToast(authErrorMessage(dbErr, 'signup'));
+          return;
+        }
         currentUser = { uid: cred.user.uid, username, colour: selectedColour, colourId: selectedColour.id };
         try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: selectedColour.id })); } catch(e) {}
         document.getElementById('welcomeMsg').textContent = 'Welcome to Hats Off, ' + username + '. Your hat is on.';
         window.showStep(3);
       } catch (err) {
-        showToast('Error creating account. Username might be taken.');
+        const message = authErrorMessage(err, 'signup');
+        if (err && err.code === 'auth/email-already-in-use') {
+          document.getElementById('usernameError').textContent = message;
+          document.getElementById('usernameError').classList.add('show');
+          window.showStep(1);
+        } else {
+          showToast(message, 5000);
+        }
         console.error(err);
       }
       btn.disabled = false;
