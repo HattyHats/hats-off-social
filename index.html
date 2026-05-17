@@ -607,6 +607,24 @@
     .scroll-hint span { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
     @keyframes pulse-line { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
+    /* ── Logged-in: feed only (no splash / hero / marketing) ── */
+    body.logged-in #splash,
+    body.logged-in #hero,
+    body.logged-in .feed-header,
+    body.logged-in footer {
+      display: none !important;
+    }
+
+    body.logged-in .feed-section {
+      padding-top: 88px;
+      padding-bottom: 48px;
+      min-height: 100vh;
+    }
+
+    body.logged-in .glow {
+      opacity: 0.5;
+    }
+
     /* ── Feed Section ── */
     .feed-section {
       max-width: 680px;
@@ -1734,6 +1752,11 @@
   </style>
 </head>
 <body>
+  <script>
+    try {
+      if (localStorage.getItem('ho_user')) document.body.classList.add('logged-in');
+    } catch (e) {}
+  </script>
 
   <!-- ════════════════════════════════════════
        SPLASH SCREEN
@@ -1846,7 +1869,7 @@
   </nav>
 
   <!-- ── Hero ── -->
-  <section class="hero">
+  <section class="hero" id="hero">
     <!-- Giant atmospheric background hat -->
     <img src="grey-hat.png" alt="" class="hero-bg-hat" aria-hidden="true" />
 
@@ -2561,6 +2584,7 @@
         }
         currentUser = { uid: cred.user.uid, username, colour: selectedColour, colourId: selectedColour.id };
         try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: selectedColour.id })); } catch(e) {}
+        showFeedOnlyView();
         document.getElementById('welcomeMsg').textContent = 'Welcome to Hats Off, ' + username + '. Your hat is on.';
         window.showStep(3);
       } catch (err) {
@@ -2603,14 +2627,31 @@
         }
       } else {
         currentUser = null;
+        document.body.classList.remove('logged-in');
         try { localStorage.removeItem('ho_user'); } catch(e) {}
       }
     });
+
+    function showFeedOnlyView() {
+      document.body.classList.add('logged-in');
+      const splash = document.getElementById('splash');
+      if (splash) {
+        splash.classList.add('hiding');
+        splash.style.display = 'none';
+      }
+      window.scrollTo(0, 0);
+      requestAnimationFrame(() => {
+        const compose = document.getElementById('composeInput');
+        if (compose) compose.focus({ preventScroll: true });
+      });
+    }
 
     /* ── Logged-in state ── */
     function activateLoggedInState() {
       if (!currentUser) return;
       const c = currentUser.colour;
+
+      showFeedOnlyView();
 
       /* Swap nav */
       document.getElementById('navRight').innerHTML =
