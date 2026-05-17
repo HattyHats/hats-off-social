@@ -747,8 +747,24 @@
       color: var(--text);
       line-height: 1.65;
       margin-bottom: 14px;
-      word-wrap: break-word;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
+
+    .post-show-more {
+      display: inline-block;
+      margin-top: -6px;
+      margin-bottom: 14px;
+      padding: 0;
+      border: none;
+      background: none;
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .post-show-more:hover { text-decoration: underline; }
 
     .post-actions {
       display: flex;
@@ -934,6 +950,27 @@
 
     .compose-input-wrap { flex: 1; min-width: 0; }
 
+    .compose-segments {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .compose-segment + .compose-segment {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .compose-segment-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
     .compose-input {
       width: 100%;
       background: transparent;
@@ -944,12 +981,34 @@
       font-weight: 300;
       resize: none;
       min-height: 44px;
-      max-height: 200px;
+      max-height: 280px;
       overflow-y: auto;
       line-height: 1.6;
     }
     .compose-input:focus { outline: none; }
     .compose-input::placeholder { color: var(--dimmed); }
+
+    .compose-add-more {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 6px 0;
+      border: none;
+      background: none;
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .compose-add-more:hover { opacity: 0.85; }
+    .compose-add-more.visible { display: inline-flex; }
+    .compose-add-more.at-limit {
+      color: #c8a86a;
+      font-weight: 600;
+    }
 
     .compose-actions {
       display: none;
@@ -1934,17 +1993,10 @@
           <img src="grey-hat.png" alt="" id="composeHatImg" />
         </div>
         <div class="compose-input-wrap">
-          <textarea
-            class="compose-input"
-            id="composeInput"
-            placeholder="What's on your mind?"
-            maxlength="280"
-            rows="1"
-            oninput="onComposeInput(this)"
-            onfocus="showComposeActions()"
-          ></textarea>
+          <div id="composeSegments" class="compose-segments"></div>
+          <button type="button" class="compose-add-more" id="composeAddMore" onclick="addComposeSegment()">+ Add more</button>
           <div class="compose-actions" id="composeActions">
-            <span class="compose-char" id="composeChar">280</span>
+            <span class="compose-char" id="composeChar">500 words</span>
             <div class="compose-right">
               <select class="compose-board-select" id="composeBoardSelect">
                 <option value="random">#random</option>
@@ -2641,7 +2693,8 @@
       }
       window.scrollTo(0, 0);
       requestAnimationFrame(() => {
-        const compose = document.getElementById('composeInput');
+        ensureComposeSegments();
+        const compose = getComposeSegmentInputs()[0];
         if (compose) compose.focus({ preventScroll: true });
       });
     }
@@ -2674,6 +2727,8 @@
       const img = document.getElementById('composeHatImg');
       img.style.filter = c.filter === 'none' ? 'none' : c.filter;
 
+      ensureComposeSegments();
+
       if (typeof initDMListener === 'function') initDMListener();
       if (typeof initNotifListener === 'function') initNotifListener();
     }
@@ -2686,26 +2741,169 @@
       });
     };
 
-    /* ── Compose ── */
+    /* ── Compose (500 words per part, + Add more) ── */
+    const WORDS_PER_POST_PART = 500;
+    const MAX_POST_PARTS = 25;
+    let activeComposeSegment = null;
+
+    function countWords(text) {
+      const t = String(text || '').trim();
+      if (!t) return 0;
+      return t.split(/\s+/).filter(Boolean).length;
+    }
+
+    function truncateToWordLimit(text, maxWords) {
+      const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+      if (words.length <= maxWords) return text;
+      return words.slice(0, maxWords).join(' ');
+    }
+
+    function getComposeSegmentInputs() {
+      return Array.from(document.querySelectorAll('#composeSegments .compose-segment-input'));
+    }
+
+    function getFocusedComposeSegment() {
+      const inputs = getComposeSegmentInputs();
+      if (activeComposeSegment && inputs.includes(activeComposeSegment)) return activeComposeSegment;
+      return inputs[inputs.length - 1] || null;
+    }
+
+    function resizeComposeSegment(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+
+    function ensureComposeSegments() {
+      const wrap = document.getElementById('composeSegments');
+      if (!wrap) return;
+      if (!wrap.children.length) resetComposeSegments();
+    }
+
+    function resetComposeSegments() {
+      const wrap = document.getElementById('composeSegments');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      activeComposeSegment = null;
+      addComposeSegmentElement(0, true);
+      updateComposeUI();
+    }
+
+    function addComposeSegmentElement(index, isFirst) {
+      const wrap = document.getElementById('composeSegments');
+      const block = document.createElement('div');
+      block.className = 'compose-segment';
+      block.dataset.segment = String(index);
+      const label = index > 0
+        ? `<div class="compose-segment-label">Part ${index + 1}</div>`
+        : '';
+      block.innerHTML = label + `
+        <textarea
+          class="compose-input compose-segment-input"
+          rows="1"
+          placeholder="${isFirst ? "What's on your mind?" : 'Continue your thought…'}"
+          oninput="onComposeInput(this)"
+          onfocus="onComposeFocus(this)"
+          onpaste="onComposePaste(this, event)"
+        ></textarea>`;
+      wrap.appendChild(block);
+      const input = block.querySelector('textarea');
+      activeComposeSegment = input;
+      return input;
+    }
+
+    window.addComposeSegment = function() {
+      const inputs = getComposeSegmentInputs();
+      if (inputs.length >= MAX_POST_PARTS) {
+        showToast('Maximum length reached for one post.');
+        return;
+      }
+      const last = inputs[inputs.length - 1];
+      if (last && countWords(last.value) >= WORDS_PER_POST_PART) {
+        const next = addComposeSegmentElement(inputs.length, false);
+        resizeComposeSegment(next);
+        next.focus();
+        updateComposeUI();
+        return;
+      }
+      if (last && !last.value.trim()) {
+        last.focus();
+        showToast('Write something in this part first.');
+        return;
+      }
+      const next = addComposeSegmentElement(inputs.length, false);
+      resizeComposeSegment(next);
+      next.focus();
+      updateComposeUI();
+    };
+
+    window.onComposeFocus = function(el) {
+      activeComposeSegment = el;
+      window.showComposeActions();
+      updateComposeWordCount(el);
+    };
+
+    window.onComposePaste = function(el, e) {
+      requestAnimationFrame(() => onComposeInput(el));
+    };
+
+    function updateComposeWordCount(el) {
+      const charEl = document.getElementById('composeChar');
+      if (!charEl || !el) return;
+      const used = countWords(el.value);
+      const remaining = WORDS_PER_POST_PART - used;
+      charEl.textContent = remaining + ' word' + (remaining === 1 ? '' : 's') + ' left';
+      charEl.className = 'compose-char'
+        + (remaining <= 0 ? ' limit' : remaining <= 50 ? ' warn' : '');
+    }
+
+    function updateComposeUI() {
+      const inputs = getComposeSegmentInputs();
+      const addBtn = document.getElementById('composeAddMore');
+      const submitEl = document.getElementById('composeSubmit');
+      const focused = getFocusedComposeSegment() || inputs[0];
+      const totalWords = inputs.reduce((n, el) => n + countWords(el.value), 0);
+      const last = inputs[inputs.length - 1];
+      const lastAtLimit = last && countWords(last.value) >= WORDS_PER_POST_PART;
+
+      if (addBtn) {
+        const canAddMore = inputs.length < MAX_POST_PARTS && totalWords > 0;
+        addBtn.classList.toggle('visible', canAddMore);
+        addBtn.classList.toggle('at-limit', !!lastAtLimit);
+        addBtn.textContent = lastAtLimit ? '+ Add more to continue' : '+ Add more';
+      }
+
+      if (focused) updateComposeWordCount(focused);
+      if (submitEl) submitEl.disabled = totalWords === 0;
+    }
+
+    function getComposePostBody() {
+      return getComposeSegmentInputs()
+        .map(el => el.value.trim())
+        .filter(Boolean)
+        .join('\n\n');
+    }
+
     window.showComposeActions = function() {
       document.getElementById('composeActions').classList.add('visible');
     };
 
     window.onComposeInput = function(el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-      const remaining = 280 - el.value.length;
-      const charEl   = document.getElementById('composeChar');
-      const submitEl = document.getElementById('composeSubmit');
-      charEl.textContent = remaining;
-      charEl.className   = 'compose-char' + (remaining < 20 ? ' limit' : remaining < 60 ? ' warn' : '');
-      submitEl.disabled  = el.value.trim().length === 0;
+      const words = countWords(el.value);
+      if (words > WORDS_PER_POST_PART) {
+        const truncated = truncateToWordLimit(el.value, WORDS_PER_POST_PART);
+        const pos = el.selectionStart;
+        el.value = truncated;
+        if (pos != null) el.selectionStart = el.selectionEnd = Math.min(pos, truncated.length);
+      }
+      resizeComposeSegment(el);
+      activeComposeSegment = el;
+      updateComposeUI();
       window.showComposeActions();
     };
 
     window.submitPost = async function() {
-      const input = document.getElementById('composeInput');
-      const text  = input.value.trim();
+      ensureComposeSegments();
+      const text = getComposePostBody();
       const board = document.getElementById('composeBoardSelect').value;
       if (!text || !currentUser) return;
 
@@ -2724,24 +2922,49 @@
           comments:  0,
           createdAt: serverTimestamp()
         });
-        input.value = '';
-        input.style.height = 'auto';
-        document.getElementById('composeChar').textContent = '280';
-        document.getElementById('composeChar').className = 'compose-char';
+        resetComposeSegments();
         document.getElementById('composeActions').classList.remove('visible');
         showToast('🎩 Post dropped.');
       } catch(e) {
         showToast('Error posting — try again.');
         console.error(e);
       }
-      btn.disabled = input.value.trim().length === 0;
+      btn.disabled = getComposePostBody().trim().length === 0;
       btn.textContent = 'Post';
     };
+
+    function truncateWordsForDisplay(text, maxWords) {
+      const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+      if (words.length <= maxWords) return { preview: text, truncated: false };
+      return { preview: words.slice(0, maxWords).join(' ') + '…', truncated: true };
+    }
+
+    window.expandPostBody = function(postId) {
+      const wrap = document.getElementById('post-body-' + postId);
+      if (!wrap) return;
+      const shortEl = wrap.querySelector('.post-body-short');
+      const fullEl = wrap.querySelector('.post-body-full');
+      const btn = wrap.querySelector('.post-show-more');
+      if (shortEl) shortEl.style.display = 'none';
+      if (fullEl) fullEl.style.display = 'block';
+      if (btn) btn.style.display = 'none';
+    };
+
+    function buildPostBodyHTML(postId, body) {
+      const { preview, truncated } = truncateWordsForDisplay(body, WORDS_PER_POST_PART);
+      if (!truncated) {
+        return `<div class="post-body-wrap" id="post-body-${postId}"><p class="post-body">${safe(body)}</p></div>`;
+      }
+      return `<div class="post-body-wrap" id="post-body-${postId}">
+        <p class="post-body post-body-short">${safe(preview)}</p>
+        <p class="post-body post-body-full" style="display:none">${safe(body)}</p>
+        <button type="button" class="post-show-more" onclick="expandPostBody('${postId}')">Show more</button>
+      </div>`;
+    }
 
     /* ── Build post card ── */
     function buildPostCard(postId, post) {
       const c = HAT_COLOURS.find(h => h.id === post.colourId) || HAT_COLOURS[8];
-      const safeBody = safe(post.body);
       const likes    = post.likes || 0;
       const commentCount = post.comments || 0;
 
@@ -2759,7 +2982,7 @@
           </div>
           <span class="post-board">#${safe(post.board)}</span>
         </div>
-        <p class="post-body">${safeBody}</p>
+        ${buildPostBodyHTML(postId, post.body || '')}
         <div class="post-actions">
           <button class="post-action like-btn" data-postid="${postId}" data-likes="${likes}" onclick="toggleLikeFB(this)">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
