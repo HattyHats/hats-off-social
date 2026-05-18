@@ -2912,7 +2912,7 @@
       btn.textContent = 'Posting…';
 
       try {
-        await push(ref(db, 'posts'), {
+        const newPost = {
           uid:       currentUser.uid,
           username:  currentUser.username,
           colourId:  currentUser.colourId,
@@ -2921,7 +2921,17 @@
           likes:     0,
           comments:  0,
           createdAt: Date.now()
-        });
+        };
+        const newRef = push(ref(db, 'posts'));
+        
+        // Optimistic UI update
+        newPost.id = newRef.key;
+        if (!allPosts.find(p => p.id === newRef.key)) {
+          allPosts.unshift(newPost);
+          if (typeof renderFeed === 'function') renderFeed();
+        }
+
+        await set(newRef, newPost);
         resetComposeSegments();
         document.getElementById('composeActions').classList.remove('visible');
         showToast('🎩 Post dropped.');
@@ -3268,12 +3278,13 @@
 
     /* Override renderFeed to support search filtering */
     renderFeed = function() {
-      const feedEl = document.getElementById('feedPosts');
+      try {
+        const feedEl = document.getElementById('feedPosts');
 
-      let posts = [...allPosts];
-      if (currentTab === 'trending') {
-        posts = posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-      }
+        let posts = [...allPosts];
+        if (currentTab === 'trending') {
+          posts = posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+        }
 
       /* Apply search filter */
       if (searchQuery) {
@@ -3352,6 +3363,10 @@
           feedEl.appendChild(cta);
         }
       });
+      } catch (err) {
+        console.error(err);
+        alert("Render Error: " + err.message);
+      }
     };
 
     /* ════════════════════════════════════
