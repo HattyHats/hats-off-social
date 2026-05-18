@@ -3209,7 +3209,7 @@
     let allPosts = [];
 
     function loadFeed() {
-      const postsRef  = query(ref(db, 'posts'), orderByChild('createdAt'), limitToLast(50));
+      const postsRef  = query(ref(db, 'posts'), orderByChild('createdAt'));
       const feedEl    = document.getElementById('feedPosts');
       const emptyEl   = document.getElementById('feedEmpty');
       const loadingEl = document.getElementById('feedLoading');
@@ -4000,5 +4000,7 @@
     }
 
   </script>
+  <!-- Version Indicator -->
+  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v2.1</div>
 </body>
 </html>
