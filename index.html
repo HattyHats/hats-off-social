@@ -2926,6 +2926,17 @@
         
         // Optimistic UI update
         const optimisticPost = { ...newPost, id: newRef.key, createdAt: Date.now() };
+        
+        // --- DIAGNOSTIC OVERRIDE ---
+        const feedEl = document.getElementById('feedPosts');
+        if (feedEl) {
+           const manualCard = buildPostCard(newRef.key, optimisticPost);
+           manualCard.style.border = "5px solid red";
+           manualCard.style.backgroundColor = "rgba(255,0,0,0.1)";
+           feedEl.insertBefore(manualCard, feedEl.firstChild);
+        }
+        alert("DIAGNOSTIC: I just forcefully inserted the post into the top of the feed with a red border. Do you see it?");
+
         if (!allPosts.find(p => p.id === newRef.key)) {
           allPosts.unshift(optimisticPost);
           if (typeof renderFeed === 'function') renderFeed();
@@ -4016,6 +4027,6 @@
 
   </script>
   <!-- Version Indicator -->
-  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v2.2</div>
+  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v2.3</div>
 </body>
 </html>
