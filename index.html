@@ -607,8 +607,7 @@
     .scroll-hint span { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
     @keyframes pulse-line { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* ── Logged-in: feed only (no splash / hero / marketing) ── */
-    body.logged-in #splash,
+    /* ── Logged-in: hide hero/marketing, show rooms ── */
     body.logged-in #hero,
     body.logged-in footer {
       display: none !important;
@@ -1999,7 +1998,14 @@
     window.enterSite = function() {
       const splash = document.getElementById('splash');
       splash.classList.add('hiding');
-      setTimeout(() => { splash.style.display = 'none'; }, 700);
+      setTimeout(() => {
+        splash.style.display = 'none';
+        /* If already logged in, jump straight to rooms; otherwise show hero */
+        if (currentUser) {
+          document.body.classList.add('logged-in');
+          window.scrollTo(0, 0);
+        }
+      }, 700);
     };
 
     /* ── Toast ── */
@@ -2270,12 +2276,9 @@
     });
 
     function showMainChatView() {
+      /* Splash stays visible until the user clicks Enter — 
+         enterSite() handles hiding it and routing to rooms */
       document.body.classList.add('logged-in');
-      const splash = document.getElementById('splash');
-      if (splash) {
-        splash.classList.add('hiding');
-        splash.style.display = 'none';
-      }
       window.scrollTo(0, 0);
     }
 
@@ -3134,6 +3137,6 @@
 
   </script>
   <!-- Version Indicator -->
-  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v3.2 — Fixed</div>
+  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v3.3 — Splash Fix</div>
 </body>
 </html>
