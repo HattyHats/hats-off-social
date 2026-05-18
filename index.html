@@ -610,515 +610,17 @@
     /* ── Logged-in: feed only (no splash / hero / marketing) ── */
     body.logged-in #splash,
     body.logged-in #hero,
-    body.logged-in .feed-header,
     body.logged-in footer {
       display: none !important;
     }
 
-    body.logged-in .feed-section {
-      padding-top: 88px;
-      padding-bottom: 48px;
-      min-height: 100vh;
+    body.logged-in #groupsPanel {
+      display: flex;
     }
 
     body.logged-in .glow {
       opacity: 0.5;
     }
-
-    /* ── Feed Section ── */
-    .feed-section {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 80px 24px 120px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .feed-header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-    .feed-label {
-      font-size: 11px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-    .feed-title {
-      font-family: var(--font-head);
-      font-size: clamp(28px, 5vw, 42px);
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -1px;
-      margin-bottom: 10px;
-    }
-    .feed-subtitle { font-size: 15px; color: var(--muted); font-weight: 300; }
-
-    /* ── Feed Tabs ── */
-    .feed-tabs {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0;
-    }
-    .feed-tab {
-      padding: 10px 18px;
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-family: var(--font-body);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      transition: color 0.2s, border-color 0.2s;
-    }
-    .feed-tab.active { color: var(--text); border-bottom-color: var(--accent); }
-    .feed-tab:hover:not(.active) { color: var(--text); }
-
-    /* ── Post Card ── */
-    .post-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-      transition: border-color 0.2s;
-    }
-    .post-card:hover { border-color: var(--border-md); }
-
-    .post-top {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    /* hat avatar using image */
-    .hat-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #222220;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .hat-avatar img {
-      width: 30px;
-      height: 30px;
-      object-fit: contain;
-      filter: var(--hat-filter, none);
-    }
-
-    .post-meta { flex: 1; min-width: 0; }
-    .post-username {
-      font-family: var(--font-head);
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .post-time { font-size: 12px; color: var(--muted); }
-
-    .post-board {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 3px 10px;
-      border-radius: 20px;
-      background: var(--bg3);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .post-body {
-      font-size: 15px;
-      font-weight: 400;
-      color: var(--text);
-      line-height: 1.65;
-      margin-bottom: 14px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .post-show-more {
-      display: inline-block;
-      margin-top: -6px;
-      margin-bottom: 14px;
-      padding: 0;
-      border: none;
-      background: none;
-      color: var(--accent);
-      font-family: var(--font-body);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .post-show-more:hover { text-decoration: underline; }
-
-    .post-actions {
-      display: flex;
-      gap: 4px;
-    }
-    .post-action {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      font-size: 13px;
-      font-family: var(--font-body);
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    .post-action:hover { background: var(--bg3); color: var(--text); }
-    .post-action.liked { color: #c0564a; }
-    .post-action svg { width: 16px; height: 16px; flex-shrink: 0; }
-
-    /* ── Comment Section (collapsible) ── */
-    .comment-section {
-      margin-top: 14px;
-      border-top: 1px solid var(--border);
-      padding-top: 14px;
-      display: none;
-    }
-    .comment-section.open { display: block; }
-
-    .comment-compose {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .comment-avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: #222220;
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .comment-avatar img { width: 20px; height: 20px; object-fit: contain; }
-
-    .comment-input-wrap { flex: 1; }
-    .comment-input {
-      width: 100%;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 12px;
-      color: var(--text);
-      font-family: var(--font-body);
-      font-size: 13px;
-      resize: none;
-      rows: 1;
-      min-height: 36px;
-      max-height: 120px;
-      overflow-y: auto;
-      transition: border-color 0.2s;
-    }
-    .comment-input:focus { outline: none; border-color: var(--border-md); }
-    .comment-input::placeholder { color: var(--dimmed); }
-
-    .comment-actions-row {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 6px;
-      gap: 8px;
-    }
-    .btn-comment-submit {
-      padding: 5px 14px;
-      border-radius: 6px;
-      border: none;
-      background: var(--accent);
-      color: var(--bg);
-      font-family: var(--font-body);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .btn-comment-submit:disabled { opacity: 0.35; cursor: default; }
-    .btn-comment-submit:hover:not(:disabled) { opacity: 0.85; }
-
-    .comment-guest-nudge {
-      font-size: 13px;
-      color: var(--muted);
-      padding: 6px 0 10px;
-    }
-    .comment-guest-nudge a { color: var(--accent); text-decoration: none; }
-    .comment-guest-nudge a:hover { text-decoration: underline; }
-
-    /* individual comments */
-    .comment-list { display: flex; flex-direction: column; gap: 10px; }
-    .comment-item {
-      display: flex;
-      gap: 10px;
-    }
-    .comment-body-wrap { flex: 1; }
-    .comment-bubble {
-      background: var(--bg3);
-      border-radius: 8px;
-      padding: 8px 12px;
-    }
-    .comment-username {
-      font-family: var(--font-head);
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 2px;
-    }
-    .comment-text {
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.5;
-      word-wrap: break-word;
-    }
-    .comment-meta-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 4px;
-    }
-    .comment-time { font-size: 11px; color: var(--dimmed); }
-    .comment-like-btn {
-      background: none;
-      border: none;
-      font-size: 11px;
-      color: var(--dimmed);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 0;
-      transition: color 0.2s;
-    }
-    .comment-like-btn:hover { color: var(--muted); }
-    .comment-like-btn.liked { color: #c0564a; }
-    .comment-like-btn svg { width: 11px; height: 11px; }
-
-    .comments-loading {
-      text-align: center;
-      padding: 12px;
-      color: var(--dimmed);
-      font-size: 13px;
-    }
-
-    /* ── Compose Bar ── */
-    .compose-wrap { margin-bottom: 20px; }
-
-    .compose-bar {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      display: none;
-      gap: 12px;
-      transition: border-color 0.2s;
-    }
-    .compose-bar:focus-within { border-color: var(--border-md); }
-
-    .compose-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #222220;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-    .compose-avatar img { width: 28px; height: 28px; object-fit: contain; }
-
-    .compose-input-wrap { flex: 1; min-width: 0; }
-
-    .compose-segments {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .compose-segment + .compose-segment {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    .compose-segment-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .compose-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: var(--text);
-      font-family: var(--font-body);
-      font-size: 15px;
-      font-weight: 300;
-      resize: none;
-      min-height: 44px;
-      max-height: 280px;
-      overflow-y: auto;
-      line-height: 1.6;
-    }
-    .compose-input:focus { outline: none; }
-    .compose-input::placeholder { color: var(--dimmed); }
-
-    .compose-add-more {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      margin-top: 10px;
-      padding: 6px 0;
-      border: none;
-      background: none;
-      color: var(--accent);
-      font-family: var(--font-body);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .compose-add-more:hover { opacity: 0.85; }
-    .compose-add-more.visible { display: inline-flex; }
-    .compose-add-more.at-limit {
-      color: #c8a86a;
-      font-weight: 600;
-    }
-
-    .compose-actions {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
-    }
-    .compose-actions.visible { display: flex; }
-
-    .compose-char { font-size: 12px; color: var(--dimmed); transition: color 0.2s; }
-    .compose-char.warn  { color: #b09050; }
-    .compose-char.limit { color: #c0564a; }
-
-    .compose-right { display: flex; align-items: center; gap: 8px; }
-
-    .compose-board-select {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--muted);
-      font-family: var(--font-body);
-      font-size: 13px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-
-    .compose-submit {
-      padding: 7px 20px;
-      border-radius: 6px;
-      border: none;
-      background: var(--accent);
-      color: var(--bg);
-      font-family: var(--font-body);
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s, opacity 0.2s;
-    }
-    .compose-submit:hover:not(:disabled) { background: var(--white); transform: translateY(-1px); }
-    .compose-submit:disabled { opacity: 0.35; cursor: default; }
-
-    /* Guest compose nudge */
-    .compose-guest {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .compose-guest-text { flex: 1; font-size: 14px; color: var(--muted); font-weight: 300; }
-    .compose-guest-text span { color: var(--text); font-weight: 500; }
-    .compose-guest-btn {
-      padding: 8px 18px;
-      border-radius: 6px;
-      background: var(--accent);
-      color: var(--bg);
-      font-size: 13px;
-      font-weight: 700;
-      font-family: var(--font-body);
-      text-decoration: none;
-      white-space: nowrap;
-      transition: opacity 0.2s;
-    }
-    .compose-guest-btn:hover { opacity: 0.85; }
-
-    /* ── Join CTA Card ── */
-    .join-card {
-      background: var(--bg2);
-      border: 1px solid var(--border-md);
-      border-radius: 12px;
-      padding: 32px 24px;
-      text-align: center;
-      margin-bottom: 16px;
-    }
-    .join-card-hat-img {
-      width: 60px;
-      height: 60px;
-      object-fit: contain;
-      margin: 0 auto 16px;
-      display: block;
-      opacity: 0.7;
-    }
-    .join-card-title {
-      font-family: var(--font-head);
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .join-card-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
-    .join-card-btn {
-      display: inline-block;
-      padding: 10px 28px;
-      border-radius: 6px;
-      background: var(--accent);
-      color: var(--bg);
-      font-size: 14px;
-      font-weight: 700;
-      font-family: var(--font-body);
-      text-decoration: none;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-    .join-card-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-    /* ── Feed Empty / Loading ── */
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Modals ── */
     .modal-overlay {
@@ -1423,17 +925,25 @@
     }
     .nav-groups-btn:hover { color: var(--text); border-color: var(--border-md); }
 
-    /* ── Groups Panel & DMs Panel (full-screen overlay) ── */
-    #groupsPanel, #dmsPanel {
+    /* ── Fullscreen panels (DMs) ── */
+    #dmsPanel {
+      display: none;
       position: fixed;
       inset: 0;
-      z-index: 300;
       background: var(--bg);
-      display: none;
+      z-index: 100;
       flex-direction: column;
-      overflow: hidden;
     }
-    #groupsPanel.open, #dmsPanel.open { display: flex; }
+    #dmsPanel.open { display: flex; }
+
+    #groupsPanel {
+      display: none; /* activated by body.logged-in #groupsPanel */
+      flex-direction: column;
+      flex: 1;
+      height: 100vh;
+      background: var(--bg);
+      z-index: 10;
+    }
 
     .groups-nav {
       display: flex;
@@ -1767,6 +1277,58 @@
     .chat-guest-bar a { color: var(--accent); text-decoration: none; }
     .chat-guest-bar a:hover { text-decoration: underline; }
 
+    /* ── Users in Room Sidebar ── */
+    .room-users-sidebar {
+      width: 220px;
+      border-left: 1px solid var(--border);
+      background: var(--bg2);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .room-users-header {
+      padding: 16px;
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+    }
+    .room-users-list {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .room-user-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 6px;
+    }
+    .room-user-item:hover { background: var(--bg3); }
+    .room-user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .room-user-avatar img { width: 18px; height: 18px; object-fit: contain; }
+    .room-user-name {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
     /* Create Group Modal */
     #createGroupModal .modal-box { max-width: 400px; }
     .group-emoji-picker {
@@ -1920,8 +1482,7 @@
       <span class="nav-wordmark">Hats Off Social</span>
     </a>
     <div class="nav-right" id="navRight">
-      <a href="#feed" class="btn-ghost" style="border:none;padding:8px 12px;" onclick="document.getElementById('feed').scrollIntoView({behavior:'smooth'});return false;">Boards</a>
-      <button class="btn-ghost" onclick="openGroups()" style="border:none;padding:8px 12px;">💬 Groups</button>
+      <button class="btn-ghost" onclick="openDMs()" style="border:none;padding:8px 12px;display:none;" id="navMessagesBtn">✉️ Messages</button>
       <button class="btn-ghost" onclick="openLoginModal()">Log in</button>
       <button class="btn-primary" onclick="openModal()">Join free</button>
     </div>
@@ -1960,82 +1521,6 @@
       <div class="scroll-line"></div>
       <span>Scroll</span>
     </div>
-  </section>
-
-  <!-- ── Feed Section ── -->
-  <section class="feed-section" id="feed">
-
-    <div class="feed-header">
-      <p class="feed-label">Live community</p>
-      <h2 class="feed-title">What's happening now</h2>
-      <p class="feed-subtitle">Real thoughts from real strangers. No names required.</p>
-    </div>
-
-    <!-- Search bar -->
-    <div class="search-wrap">
-      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" class="search-bar" id="searchBar" placeholder="Search posts by keyword, username, or #board…" oninput="onSearchInput(this)" />
-      <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
-    </div>
-    <div class="search-results-info" id="searchInfo"></div>
-
-    <!-- Compose bar -->
-    <div class="compose-wrap" id="composeWrap">
-      <!-- Logged-out nudge -->
-      <div class="compose-guest" id="composeGuest">
-        <img src="grey-hat.png" alt="" style="width:32px;height:32px;object-fit:contain;opacity:0.35;flex-shrink:0;" />
-        <p class="compose-guest-text"><span>Join to post.</span> Say whatever's on your mind, no strings attached.</p>
-        <a href="#" class="compose-guest-btn" onclick="openModal(); return false;">Put your hat on</a>
-      </div>
-      <!-- Logged-in compose -->
-      <div class="compose-bar" id="composeBar">
-        <div class="compose-avatar" id="composeAvatar">
-          <img src="grey-hat.png" alt="" id="composeHatImg" />
-        </div>
-        <div class="compose-input-wrap">
-          <div id="composeSegments" class="compose-segments"></div>
-          <button type="button" class="compose-add-more" id="composeAddMore" onclick="addComposeSegment()">+ Add more</button>
-          <div class="compose-actions" id="composeActions">
-            <span class="compose-char" id="composeChar">500 words</span>
-            <div class="compose-right">
-              <select class="compose-board-select" id="composeBoardSelect">
-                <option value="random">#random</option>
-                <option value="crypto">#crypto</option>
-                <option value="ai">#ai</option>
-                <option value="privacy">#privacy</option>
-                <option value="web3">#web3</option>
-                <option value="finance">#finance</option>
-                <option value="politics">#politics</option>
-                <option value="gaming">#gaming</option>
-                <option value="science">#science</option>
-              </select>
-              <button class="compose-submit" id="composeSubmit" onclick="submitPost()" disabled>Post</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filter tabs -->
-    <div class="feed-tabs">
-      <button class="feed-tab active" onclick="switchTab(this, 'latest')">Latest</button>
-      <button class="feed-tab" onclick="switchTab(this, 'trending')">Trending</button>
-    </div>
-
-    <!-- Firebase posts load here -->
-    <div id="feedPosts"></div>
-
-    <!-- Empty state -->
-    <div id="feedEmpty" style="display:none;text-align:center;padding:60px 20px;">
-      <img src="grey-hat.png" alt="" style="width:60px;height:60px;object-fit:contain;margin:0 auto 16px;display:block;opacity:0.2;" />
-      <p style="color:var(--muted);font-size:15px;">No posts yet. Be the first to say something.</p>
-    </div>
-
-    <!-- Loading -->
-    <div id="feedLoading" style="text-align:center;padding:40px 20px;">
-      <div style="width:20px;height:20px;border:2px solid var(--border-md);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto;"></div>
-    </div>
-
   </section>
 
   <!-- ── Footer ── -->
@@ -2200,12 +1685,8 @@
     <div class="groups-nav">
       <div class="groups-nav-title">
         <img src="grey-hat.png" alt="" />
-        💬 Hat Rooms
+        💬 Chat Rooms
       </div>
-      <button class="groups-back-btn" onclick="closeGroups()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        Close
-      </button>
     </div>
 
     <div class="groups-body">
@@ -2249,21 +1730,29 @@
               <span id="chatMemberCount">live</span>
             </div>
           </div>
-          <div class="chat-messages" id="chatMessages"></div>
-          <!-- Input for logged-in users -->
-          <div class="chat-input-area" id="chatInputArea" style="display:none;">
-            <div class="chat-input-avatar" id="chatInputAvatar">
-              <img src="grey-hat.png" alt="" id="chatInputAvatarImg" />
+          <div style="display:flex; flex:1; overflow:hidden;">
+            <div style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+              <div class="chat-messages" id="chatMessages"></div>
+              <!-- Input for logged-in users -->
+              <div class="chat-input-area" id="chatInputArea" style="display:none;">
+                <div class="chat-input-avatar" id="chatInputAvatar">
+                  <img src="grey-hat.png" alt="" id="chatInputAvatarImg" />
+                </div>
+                <textarea class="chat-input" id="chatInput" placeholder="Say something…" rows="1"
+                  oninput="autoResize(this);document.getElementById('chatSendBtn').disabled=this.value.trim().length===0"
+                  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg();}"
+                  maxlength="500"></textarea>
+                <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMsg()" disabled>Send</button>
+              </div>
+              <!-- Guest bar -->
+              <div class="chat-guest-bar" id="chatGuestBar" style="display:none;">
+                <p><a href="#" onclick="closeGroups();openModal();return false;">Join free</a> to chat in this room.</p>
+              </div>
             </div>
-            <textarea class="chat-input" id="chatInput" placeholder="Say something…" rows="1"
-              oninput="autoResize(this);document.getElementById('chatSendBtn').disabled=this.value.trim().length===0"
-              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg();}"
-              maxlength="500"></textarea>
-            <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMsg()" disabled>Send</button>
-          </div>
-          <!-- Guest bar -->
-          <div class="chat-guest-bar" id="chatGuestBar" style="display:none;">
-            <p><a href="#" onclick="closeGroups();openModal();return false;">Join free</a> to chat in this room.</p>
+            <div class="room-users-sidebar" id="roomUsersSidebar">
+              <div class="room-users-header">Users in Room</div>
+              <div class="room-users-list" id="roomUsersList"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -2304,7 +1793,7 @@
     /* ── Firebase ── */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getDatabase, ref, push, query, orderByChild, limitToLast, onValue, onChildAdded, onChildChanged, onChildRemoved, runTransaction, serverTimestamp, get, set, update, remove }
+    import { getDatabase, ref, push, query, orderByChild, limitToLast, onValue, onChildAdded, onChildChanged, onChildRemoved, runTransaction, serverTimestamp, get, set, update, remove, onDisconnect }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -2408,7 +1897,6 @@
 
     let selectedColour = HAT_COLOURS[8]; // default grey
     let currentUser    = null;
-    let currentTab     = 'latest';
 
     /* ── Splash ── */
     window.enterSite = function() {
@@ -2684,7 +2172,7 @@
       }
     });
 
-    function showFeedOnlyView() {
+    function showMainChatView() {
       document.body.classList.add('logged-in');
       const splash = document.getElementById('splash');
       if (splash) {
@@ -2692,11 +2180,6 @@
         splash.style.display = 'none';
       }
       window.scrollTo(0, 0);
-      requestAnimationFrame(() => {
-        ensureComposeSegments();
-        const compose = getComposeSegmentInputs()[0];
-        if (compose) compose.focus({ preventScroll: true });
-      });
     }
 
     /* ── Logged-in state ── */
@@ -2704,12 +2187,11 @@
       if (!currentUser) return;
       const c = currentUser.colour;
 
-      showFeedOnlyView();
+      showMainChatView();
 
       /* Swap nav */
       document.getElementById('navRight').innerHTML =
         `<div style="display:flex;align-items:center;gap:10px;">
-          <button class="btn-ghost" onclick="openGroups()" style="border:none;padding:8px 12px;">💬 Groups</button>
           <button class="btn-ghost" onclick="openDMs()" style="border:none;padding:8px 12px;position:relative;">✉️ Messages <span id="navDMBadge" style="display:none;position:absolute;top:4px;right:4px;background:#c0564a;width:8px;height:8px;border-radius:50%;"></span></button>
           <button class="btn-ghost" onclick="openNotifications()" style="border:none;padding:8px 12px;position:relative;">🔔 <span id="navNotifBadge" style="display:none;position:absolute;top:4px;right:4px;background:#c0564a;width:8px;height:8px;border-radius:50%;"></span></button>
           <div style="width:34px;height:34px;border-radius:50%;background:${c.bg};display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.12);overflow:hidden;">
@@ -2719,18 +2201,11 @@
           <button class="btn-ghost" onclick="logout()" style="font-size:12px;padding:6px 10px;">Log out</button>
         </div>`;
 
-      /* Swap compose */
-      document.getElementById('composeGuest').style.display = 'none';
-      const bar = document.getElementById('composeBar');
-      bar.style.display = 'flex';
-      document.getElementById('composeAvatar').style.background = c.bg;
-      const img = document.getElementById('composeHatImg');
-      img.style.filter = c.filter === 'none' ? 'none' : c.filter;
-
-      ensureComposeSegments();
-
       if (typeof initDMListener === 'function') initDMListener();
       if (typeof initNotifListener === 'function') initNotifListener();
+
+      /* Auto-load rooms — chat is now the main dashboard */
+      loadGroups();
     }
 
     window.logout = function() {
@@ -2741,10 +2216,11 @@
       });
     };
 
-    /* ── Compose (500 words per part, + Add more) ── */
-    const WORDS_PER_POST_PART = 500;
-    const MAX_POST_PARTS = 25;
-    let activeComposeSegment = null;
+    /* ── Shared utilities ── */
+    window.autoResize = function(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    };
 
     function countWords(text) {
       const t = String(text || '').trim();
@@ -2752,624 +2228,6 @@
       return t.split(/\s+/).filter(Boolean).length;
     }
 
-    function truncateToWordLimit(text, maxWords) {
-      const words = String(text || '').trim().split(/\s+/).filter(Boolean);
-      if (words.length <= maxWords) return text;
-      return words.slice(0, maxWords).join(' ');
-    }
-
-    function getComposeSegmentInputs() {
-      return Array.from(document.querySelectorAll('#composeSegments .compose-segment-input'));
-    }
-
-    function getFocusedComposeSegment() {
-      const inputs = getComposeSegmentInputs();
-      if (activeComposeSegment && inputs.includes(activeComposeSegment)) return activeComposeSegment;
-      return inputs[inputs.length - 1] || null;
-    }
-
-    function resizeComposeSegment(el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-    }
-
-    function ensureComposeSegments() {
-      const wrap = document.getElementById('composeSegments');
-      if (!wrap) return;
-      if (!wrap.children.length) resetComposeSegments();
-    }
-
-    function resetComposeSegments() {
-      const wrap = document.getElementById('composeSegments');
-      if (!wrap) return;
-      wrap.innerHTML = '';
-      activeComposeSegment = null;
-      addComposeSegmentElement(0, true);
-      updateComposeUI();
-    }
-
-    function addComposeSegmentElement(index, isFirst) {
-      const wrap = document.getElementById('composeSegments');
-      const block = document.createElement('div');
-      block.className = 'compose-segment';
-      block.dataset.segment = String(index);
-      const label = index > 0
-        ? `<div class="compose-segment-label">Part ${index + 1}</div>`
-        : '';
-      block.innerHTML = label + `
-        <textarea
-          class="compose-input compose-segment-input"
-          rows="1"
-          placeholder="${isFirst ? "What's on your mind?" : 'Continue your thought…'}"
-          oninput="onComposeInput(this)"
-          onfocus="onComposeFocus(this)"
-          onpaste="onComposePaste(this, event)"
-        ></textarea>`;
-      wrap.appendChild(block);
-      const input = block.querySelector('textarea');
-      activeComposeSegment = input;
-      return input;
-    }
-
-    window.addComposeSegment = function() {
-      const inputs = getComposeSegmentInputs();
-      if (inputs.length >= MAX_POST_PARTS) {
-        showToast('Maximum length reached for one post.');
-        return;
-      }
-      const last = inputs[inputs.length - 1];
-      if (last && countWords(last.value) >= WORDS_PER_POST_PART) {
-        const next = addComposeSegmentElement(inputs.length, false);
-        resizeComposeSegment(next);
-        next.focus();
-        updateComposeUI();
-        return;
-      }
-      if (last && !last.value.trim()) {
-        last.focus();
-        showToast('Write something in this part first.');
-        return;
-      }
-      const next = addComposeSegmentElement(inputs.length, false);
-      resizeComposeSegment(next);
-      next.focus();
-      updateComposeUI();
-    };
-
-    window.onComposeFocus = function(el) {
-      activeComposeSegment = el;
-      window.showComposeActions();
-      updateComposeWordCount(el);
-    };
-
-    window.onComposePaste = function(el, e) {
-      requestAnimationFrame(() => onComposeInput(el));
-    };
-
-    function updateComposeWordCount(el) {
-      const charEl = document.getElementById('composeChar');
-      if (!charEl || !el) return;
-      const used = countWords(el.value);
-      const remaining = WORDS_PER_POST_PART - used;
-      charEl.textContent = remaining + ' word' + (remaining === 1 ? '' : 's') + ' left';
-      charEl.className = 'compose-char'
-        + (remaining <= 0 ? ' limit' : remaining <= 50 ? ' warn' : '');
-    }
-
-    function updateComposeUI() {
-      const inputs = getComposeSegmentInputs();
-      const addBtn = document.getElementById('composeAddMore');
-      const submitEl = document.getElementById('composeSubmit');
-      const focused = getFocusedComposeSegment() || inputs[0];
-      const totalWords = inputs.reduce((n, el) => n + countWords(el.value), 0);
-      const last = inputs[inputs.length - 1];
-      const lastAtLimit = last && countWords(last.value) >= WORDS_PER_POST_PART;
-
-      if (addBtn) {
-        const canAddMore = inputs.length < MAX_POST_PARTS && totalWords > 0;
-        addBtn.classList.toggle('visible', canAddMore);
-        addBtn.classList.toggle('at-limit', !!lastAtLimit);
-        addBtn.textContent = lastAtLimit ? '+ Add more to continue' : '+ Add more';
-      }
-
-      if (focused) updateComposeWordCount(focused);
-      if (submitEl) submitEl.disabled = totalWords === 0;
-    }
-
-    function getComposePostBody() {
-      return getComposeSegmentInputs()
-        .map(el => el.value.trim())
-        .filter(Boolean)
-        .join('\n\n');
-    }
-
-    window.showComposeActions = function() {
-      document.getElementById('composeActions').classList.add('visible');
-    };
-
-    window.onComposeInput = function(el) {
-      const words = countWords(el.value);
-      if (words > WORDS_PER_POST_PART) {
-        const truncated = truncateToWordLimit(el.value, WORDS_PER_POST_PART);
-        const pos = el.selectionStart;
-        el.value = truncated;
-        if (pos != null) el.selectionStart = el.selectionEnd = Math.min(pos, truncated.length);
-      }
-      resizeComposeSegment(el);
-      activeComposeSegment = el;
-      updateComposeUI();
-      window.showComposeActions();
-    };
-
-    window.submitPost = async function() {
-      ensureComposeSegments();
-      const text = getComposePostBody();
-      const board = document.getElementById('composeBoardSelect').value;
-      if (!text || !currentUser) return;
-
-      const btn = document.getElementById('composeSubmit');
-      btn.disabled = true;
-      btn.textContent = 'Posting…';
-
-      try {
-        const newPost = {
-          uid:       currentUser.uid,
-          username:  currentUser.username,
-          colourId:  currentUser.colourId,
-          board,
-          body:      text,
-          likes:     0,
-          comments:  0,
-          createdAt: serverTimestamp()
-        };
-        const newRef = push(ref(db, 'posts'));
-        
-        // Optimistic UI update
-        const optimisticPost = { ...newPost, id: newRef.key, createdAt: Date.now() };
-        if (!allPosts.find(p => p.id === newRef.key)) {
-          allPosts.unshift(optimisticPost);
-          if (typeof renderFeed === 'function') renderFeed();
-        }
-
-        await set(newRef, newPost);
-        resetComposeSegments();
-        document.getElementById('composeActions').classList.remove('visible');
-        showToast('🎩 Post dropped.');
-      } catch(e) {
-        showToast('Error posting — try again.');
-        console.error(e);
-      }
-      btn.disabled = getComposePostBody().trim().length === 0;
-      btn.textContent = 'Post';
-    };
-
-    function truncateWordsForDisplay(text, maxWords) {
-      const words = String(text || '').trim().split(/\s+/).filter(Boolean);
-      if (words.length <= maxWords) return { preview: text, truncated: false };
-      return { preview: words.slice(0, maxWords).join(' ') + '…', truncated: true };
-    }
-
-    window.expandPostBody = function(postId) {
-      const wrap = document.getElementById('post-body-' + postId);
-      if (!wrap) return;
-      const shortEl = wrap.querySelector('.post-body-short');
-      const fullEl = wrap.querySelector('.post-body-full');
-      const btn = wrap.querySelector('.post-show-more');
-      if (shortEl) shortEl.style.display = 'none';
-      if (fullEl) fullEl.style.display = 'block';
-      if (btn) btn.style.display = 'none';
-    };
-
-    function buildPostBodyHTML(postId, body) {
-      const { preview, truncated } = truncateWordsForDisplay(body, WORDS_PER_POST_PART);
-      if (!truncated) {
-        return `<div class="post-body-wrap" id="post-body-${postId}"><p class="post-body">${safe(body)}</p></div>`;
-      }
-      return `<div class="post-body-wrap" id="post-body-${postId}">
-        <p class="post-body post-body-short">${safe(preview)}</p>
-        <p class="post-body post-body-full" style="display:none">${safe(body)}</p>
-        <button type="button" class="post-show-more" onclick="expandPostBody('${postId}')">Show more</button>
-      </div>`;
-    }
-
-    /* ── Build post card ── */
-    function buildPostCard(postId, post) {
-      const c = HAT_COLOURS.find(h => h.id === post.colourId) || HAT_COLOURS[8];
-      const likes    = post.likes || 0;
-      const commentCount = post.comments || 0;
-
-      const article = document.createElement('article');
-      article.className = 'post-card';
-      article.dataset.postId = postId;
-      article.innerHTML = `
-        <div class="post-top">
-          <div class="hat-avatar" style="background:${c.bg};">
-            <img src="grey-hat.png" alt="" style="filter:${c.filter === 'none' ? 'none' : c.filter};" />
-          </div>
-          <div class="post-meta">
-            <div class="post-username">${safe(post.username)}</div>
-            <div class="post-time">${timeAgo(post.createdAt)}</div>
-          </div>
-          <span class="post-board">#${safe(post.board)}</span>
-        </div>
-        ${buildPostBodyHTML(postId, post.body || '')}
-        <div class="post-actions">
-          <button class="post-action like-btn" data-postid="${postId}" data-likes="${likes}" onclick="toggleLikeFB(this)">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            <span class="like-count">${likes}</span>
-          </button>
-          <button class="post-action comment-toggle-btn" data-postid="${postId}" onclick="toggleComments(this, '${postId}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span class="comment-count">${commentCount}</span>
-          </button>
-          <button class="post-action" onclick="sharePost('${postId}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Share
-          </button>
-          <button class="post-action" data-username="${safe(post.username)}" onclick="openDMFromButton(this)">
-            ✉️ DM
-          </button>
-        </div>
-        <div class="comment-section" id="comments-${postId}"></div>`;
-
-      return article;
-    }
-
-    window.openDMFromButton = function(btn) {
-      openDMRoom(btn.dataset.username || '');
-    };
-
-    /* ── Like ── */
-    window.toggleLikeFB = function(btn) {
-      if (!currentUser) { openModal(); return; }
-      const postId = btn.dataset.postid;
-      const liked  = btn.classList.toggle('liked');
-      const delta  = liked ? 1 : -1;
-      const oldCount = parseInt(btn.dataset.likes || 0);
-      runTransaction(ref(db, 'posts/' + postId + '/likes'), cur => Math.max(0, (cur || 0) + delta)).catch(() => {
-        btn.classList.toggle('liked', !liked);
-        btn.dataset.likes = oldCount;
-        btn.querySelector('.like-count').textContent = oldCount;
-        showToast('Could not update like.');
-      });
-      const newCount = Math.max(0, oldCount + delta);
-      btn.dataset.likes = newCount;
-      btn.querySelector('.like-count').textContent = newCount;
-    };
-
-    /* ── Share ── */
-    window.sharePost = function(postId) {
-      const url = window.location.origin + window.location.pathname + '?post=' + postId;
-      navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => showToast('Share: ' + url));
-    };
-
-    /* ── Comments ── */
-    window.toggleComments = function(btn, postId) {
-      const section = document.getElementById('comments-' + postId);
-      const isOpen  = section.classList.toggle('open');
-      if (isOpen && section.innerHTML === '') {
-        loadComments(postId, section);
-      }
-    };
-
-    function loadComments(postId, section) {
-      if (!section.querySelector('.comment-list')) {
-        const composeHTML = currentUser
-          ? `<div class="comment-compose">
-              <div class="comment-avatar" style="background:${currentUser.colour.bg};">
-                <img src="grey-hat.png" alt="" style="filter:${currentUser.colour.filter === 'none' ? 'none' : currentUser.colour.filter};" />
-              </div>
-              <div class="comment-input-wrap">
-                <textarea class="comment-input" id="cinput-${postId}" placeholder="Write a comment…" rows="1"
-                  oninput="autoResize(this);document.getElementById('csubmit-${postId}').disabled=this.value.trim().length===0"
-                  maxlength="500"></textarea>
-                <div class="comment-actions-row">
-                  <button class="btn-comment-submit" id="csubmit-${postId}" disabled
-                    onclick="submitComment('${postId}')">Reply</button>
-                </div>
-              </div>
-            </div>`
-          : `<p class="comment-guest-nudge"><a href="#" onclick="openModal();return false;">Join free</a> to leave a comment.</p>`;
-
-        section.innerHTML = composeHTML + `<div class="comments-loading">Loading comments…</div><div class="comment-list" style="display:none;"></div>`;
-      }
-
-      const commentsRef = query(ref(db, 'comments/' + postId), orderByChild('createdAt'), limitToLast(50));
-      onValue(commentsRef, (snap) => {
-        const loadingMsg = section.querySelector('.comments-loading');
-        if (loadingMsg) loadingMsg.remove();
-        
-        const listContainer = section.querySelector('.comment-list');
-        listContainer.style.display = 'flex';
-
-        const list = [];
-        if (snap.exists()) {
-          snap.forEach(c => list.push({ id: c.key, ...c.val() }));
-          list.reverse();
-        }
-
-        if (list.length === 0) {
-          if (!listContainer.querySelector('.empty-msg')) {
-            listContainer.innerHTML = `<p class="empty-msg" style="font-size:13px;color:var(--dimmed);padding:6px 0 10px;">No comments yet.</p>`;
-          }
-          return;
-        }
-
-        const emptyMsg = listContainer.querySelector('.empty-msg');
-        if (emptyMsg) emptyMsg.remove();
-
-        const currentChildren = Array.from(listContainer.children);
-        const idsToKeep = new Set(list.map(c => c.id));
-        currentChildren.forEach(child => {
-          if (!idsToKeep.has(child.id.replace('citem-', ''))) child.remove();
-        });
-
-        list.forEach(c => {
-          let existingItem = document.getElementById('citem-' + c.id);
-          if (!existingItem) {
-            const temp = document.createElement('div');
-            temp.innerHTML = buildCommentHTML(c, postId);
-            existingItem = temp.firstElementChild;
-          } else {
-             const likeBtn = existingItem.querySelector('.comment-like-btn');
-             if (likeBtn && likeBtn.dataset.likes !== String(c.likes || 0)) {
-               likeBtn.dataset.likes = c.likes || 0;
-               likeBtn.querySelector('span').textContent = c.likes || '';
-             }
-          }
-          listContainer.appendChild(existingItem);
-        });
-      });
-    }
-
-    function buildCommentHTML(c, postId) {
-      const cc = HAT_COLOURS.find(h => h.id === c.colourId) || HAT_COLOURS[8];
-      const likes = c.likes || 0;
-      return `<div class="comment-item" id="citem-${c.id}">
-        <div class="comment-avatar" style="background:${cc.bg};">
-          <img src="grey-hat.png" alt="" style="filter:${cc.filter === 'none' ? 'none' : cc.filter};" />
-        </div>
-        <div class="comment-body-wrap">
-          <div class="comment-bubble">
-            <div class="comment-username">${safe(c.username)}</div>
-            <div class="comment-text">${safe(c.body)}</div>
-          </div>
-          <div class="comment-meta-row">
-            <span class="comment-time">${timeAgo(c.createdAt)}</span>
-            <button class="comment-like-btn" data-commentid="${c.id}" data-postid="${postId}" data-likes="${likes}" onclick="likeComment(this)">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-              <span>${likes || ''}</span>
-            </button>
-          </div>
-        </div>
-      </div>`;
-    }
-
-    window.submitComment = async function(postId) {
-      if (!currentUser) { openModal(); return; }
-      const input = document.getElementById('cinput-' + postId);
-      const text  = input.value.trim();
-      if (!text) return;
-
-      const btn = document.getElementById('csubmit-' + postId);
-      btn.disabled = true;
-      btn.textContent = '…';
-
-      try {
-        await push(ref(db, 'comments/' + postId), {
-          uid:       currentUser.uid,
-          username:  currentUser.username,
-          colourId:  currentUser.colourId,
-          body:      text,
-          likes:     0,
-          createdAt: Date.now()
-        });
-        /* Increment comment count on post */
-        runTransaction(ref(db, 'posts/' + postId + '/comments'), cur => (cur || 0) + 1);
-
-        /* Notify post author */
-        const postSnap = await get(ref(db, 'posts/' + postId));
-        if (postSnap.exists()) {
-          const author = postSnap.val().username;
-          if (author !== currentUser.username) {
-            await push(ref(db, 'notifications/' + author), {
-              type: 'comment',
-              from: currentUser.username,
-              text: text,
-              createdAt: Date.now(),
-              read: false
-            });
-          }
-        }
-
-        input.value = '';
-        input.style.height = 'auto';
-      } catch(e) {
-        showToast('Error — try again.');
-        console.error(e);
-      }
-      btn.disabled = input.value.trim().length === 0;
-      btn.textContent = 'Reply';
-    };
-
-    window.likeComment = function(btn) {
-      if (!currentUser) { openModal(); return; }
-      const commentId = btn.dataset.commentid;
-      const postId    = btn.dataset.postid;
-      const liked     = btn.classList.toggle('liked');
-      const delta     = liked ? 1 : -1;
-      const oldCount  = parseInt(btn.dataset.likes || 0);
-      runTransaction(ref(db, 'comments/' + postId + '/' + commentId + '/likes'), cur => Math.max(0, (cur || 0) + delta)).catch(() => {
-        btn.classList.toggle('liked', !liked);
-        btn.dataset.likes = oldCount;
-        btn.querySelector('span').textContent = oldCount || '';
-        showToast('Could not update like.');
-      });
-      const newCount = Math.max(0, oldCount + delta);
-      btn.dataset.likes = newCount;
-      btn.querySelector('span').textContent = newCount || '';
-    };
-
-    window.autoResize = function(el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-    };
-
-    /* ── Feed ── */
-    let allPosts = [];
-
-    function loadFeed() {
-      // Use default push key sorting which is naturally chronological!
-      // This bypasses the local cache bug where serverTimestamp() drops items from orderBy queries.
-      const postsRef  = query(ref(db, 'posts'), limitToLast(100));
-      const feedEl    = document.getElementById('feedPosts');
-      const emptyEl   = document.getElementById('feedEmpty');
-      const loadingEl = document.getElementById('feedLoading');
-
-      onValue(postsRef, (snap) => {
-        loadingEl.style.display = 'none';
-        allPosts = [];
-
-        if (!snap.exists()) {
-          emptyEl.style.display = 'block';
-          feedEl.innerHTML = '';
-          return;
-        }
-
-        emptyEl.style.display = 'none';
-        snap.forEach(c => allPosts.push({ id: c.key, ...c.val() }));
-        allPosts.reverse();
-        renderFeed();
-      }, (err) => {
-        loadingEl.style.display = 'none';
-        feedEl.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px;">Could not load posts. Check Firebase rules.</p>';
-        console.error(err);
-      });
-    }
-
-    function renderFeed() {
-      /* This base function is overridden below by the search-aware version */
-    }
-
-    window.switchTab = function(el, tab) {
-      document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
-      el.classList.add('active');
-      currentTab = tab;
-      renderFeed();
-    };
-
-    /* ════════════════════════════════════
-       SEARCH
-    ════════════════════════════════════ */
-    let searchQuery = '';
-
-    window.onSearchInput = function(el) {
-      searchQuery = el.value.trim().toLowerCase();
-      document.getElementById('searchClear').classList.toggle('visible', searchQuery.length > 0);
-      renderFeed();
-    };
-
-    window.clearSearch = function() {
-      const bar = document.getElementById('searchBar');
-      bar.value = '';
-      searchQuery = '';
-      document.getElementById('searchClear').classList.remove('visible');
-      document.getElementById('searchInfo').classList.remove('visible');
-      renderFeed();
-    };
-
-    /* Override renderFeed to support search filtering */
-    renderFeed = function() {
-      try {
-        const feedEl = document.getElementById('feedPosts');
-
-        let posts = [...allPosts];
-        if (currentTab === 'trending') {
-          posts = posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        }
-
-      /* Apply search filter */
-      if (searchQuery) {
-        posts = posts.filter(p => {
-          return (
-            (p.body     && p.body.toLowerCase().includes(searchQuery))     ||
-            (p.username && p.username.toLowerCase().includes(searchQuery)) ||
-            (p.board    && p.board.toLowerCase().includes(searchQuery))
-          );
-        });
-        const infoEl = document.getElementById('searchInfo');
-        infoEl.textContent = posts.length === 0
-          ? `No posts found for "${searchQuery}"`
-          : `${posts.length} result${posts.length === 1 ? '' : 's'} for "${searchQuery}"`;
-        infoEl.classList.add('visible');
-      } else {
-        document.getElementById('searchInfo').classList.remove('visible');
-      }
-
-      if (posts.length === 0 && searchQuery) {
-        feedEl.innerHTML = `<div style="text-align:center;padding:40px 20px;">
-          <img src="grey-hat.png" alt="" style="width:50px;height:50px;object-fit:contain;margin:0 auto 14px;display:block;opacity:0.18;" />
-          <p style="color:var(--muted);font-size:15px;">No matches found. Try a different keyword.</p>
-        </div>`;
-        return;
-      }
-
-      // Clear empty match state if it's there
-      if (feedEl.querySelector('div[style*="text-align:center"]')) {
-        feedEl.innerHTML = '';
-      }
-
-      const currentChildren = Array.from(feedEl.children);
-      const postIdsToKeep = new Set(posts.map(p => p.id));
-      
-      currentChildren.forEach(child => {
-        if (child.classList.contains('post-card') && !postIdsToKeep.has(child.dataset.postId)) {
-          child.remove();
-        }
-        if (child.classList.contains('join-card')) {
-          child.remove();
-        }
-      });
-
-      let ctaInserted = false;
-      posts.forEach((post, i) => {
-        let existingCard = Array.from(feedEl.children).find(c => c.dataset.postId === post.id);
-        
-        if (!existingCard) {
-          existingCard = buildPostCard(post.id, post);
-        } else {
-          const likeBtn = existingCard.querySelector('.like-btn');
-          const likeCount = existingCard.querySelector('.like-count');
-          const commentCount = existingCard.querySelector('.comment-count');
-          
-          if (likeBtn && likeBtn.dataset.likes !== String(post.likes || 0)) {
-            likeBtn.dataset.likes = post.likes || 0;
-            likeCount.textContent = post.likes || 0;
-          }
-          if (commentCount && commentCount.textContent !== String(post.comments || 0)) {
-            commentCount.textContent = post.comments || 0;
-          }
-        }
-        
-        feedEl.appendChild(existingCard);
-
-        if (i === 2 && !currentUser && !ctaInserted && !searchQuery) {
-          ctaInserted = true;
-          const cta = document.createElement('div');
-          cta.className = 'join-card';
-          cta.innerHTML = `
-            <img src="grey-hat.png" class="join-card-hat-img" alt="" />
-            <h3 class="join-card-title">Pick up your hat and join in.</h3>
-            <p class="join-card-sub">Create a free anonymous handle in seconds.<br>No email. No phone. No ID. Ever.</p>
-            <a href="#" class="join-card-btn" onclick="openModal(); return false;">Create your hat — it's free</a>`;
-          feedEl.appendChild(cta);
-        }
-      });
-      } catch (err) {
-        console.error(err);
-        alert("Render Error: " + err.message);
-      }
-    };
 
     /* ════════════════════════════════════
        GROUPS / CHAT ROOMS
@@ -3379,6 +2237,8 @@
     let activeGroupId      = null;
     let chatMsgListener    = null;
     let groupsListener     = null;
+    let presenceListener   = null;
+    let myPresenceRef      = null;
 
     window.openGroups = function() {
       document.getElementById('groupsPanel').classList.add('open');
@@ -3391,6 +2251,12 @@
       document.body.style.overflow = '';
       /* Detach chat listener */
       if (chatMsgListener) { chatMsgListener(); chatMsgListener = null; }
+      if (presenceListener) { presenceListener(); presenceListener = null; }
+      if (myPresenceRef) {
+        remove(myPresenceRef);
+        onDisconnect(myPresenceRef).cancel();
+        myPresenceRef = null;
+      }
       activeGroupId = null;
       document.querySelectorAll('#groupList .group-item').forEach(el => el.classList.remove('active'));
       document.getElementById('chatEmpty').style.display = 'flex';
@@ -3401,6 +2267,12 @@
     };
 
     /* Load groups list from Firebase */
+    const OFFICIAL_ROOMS = [
+      { id: 'lobby', name: 'The Lobby', emoji: '🎩', bg: '#222', topic: 'The main gathering place', isOfficial: true },
+      { id: 'crypto', name: 'Crypto Chat', emoji: '💎', bg: '#1c2438', topic: 'Tokens, chains, and charts', isOfficial: true },
+      { id: 'dev', name: 'Developers', emoji: '💻', bg: '#1c3028', topic: 'Code, bugs, and coffee', isOfficial: true }
+    ];
+
     function loadGroups() {
       const groupsRef = query(ref(db, 'groups'), orderByChild('createdAt'));
       if (groupsListener) groupsListener();
@@ -3419,18 +2291,28 @@
            listEl.innerHTML = '';
         }
 
-        const groups = [];
-        snap.forEach(c => groups.push({ id: c.key, ...c.val() }));
-        groups.reverse();
+        const groups = [...OFFICIAL_ROOMS];
+        snap.forEach(c => {
+          // If a user somehow creates a room with the same ID, we skip it
+          if (!OFFICIAL_ROOMS.find(o => o.id === c.key)) {
+            groups.push({ id: c.key, ...c.val(), isOfficial: false });
+          }
+        });
+        
+        // Let's sort user-created rooms by creation date reversed, but keep officials on top
+        const userGroups = groups.filter(g => !g.isOfficial).reverse();
+        const allGroups = [...OFFICIAL_ROOMS, ...userGroups];
         
         const currentChildren = Array.from(listEl.children);
-        const idsToKeep = new Set(groups.map(g => g.id));
+        const idsToKeep = new Set(allGroups.map(g => g.id));
         currentChildren.forEach(child => {
            if (!idsToKeep.has(child.dataset.groupId)) child.remove();
         });
 
-        groups.forEach(g => {
+        allGroups.forEach(g => {
           let el = Array.from(listEl.children).find(c => c.dataset.groupId === g.id);
+          const badgeHTML = g.isOfficial ? `<span style="font-size:10px;background:var(--accent);color:var(--bg);padding:2px 4px;border-radius:4px;font-weight:bold;margin-left:6px;">OFFICIAL</span>` : '';
+          
           if (!el) {
             el = document.createElement('div');
             el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
@@ -3438,9 +2320,8 @@
             el.innerHTML = `
               <div class="group-icon" style="background:${g.bg || '#222'};">${g.emoji || '🎩'}</div>
               <div class="group-info">
-                <div class="group-name">${safe(g.name)}</div>
+                <div class="group-name">${safe(g.name)}${badgeHTML}</div>
                 <div class="group-meta">
-                  <span class="group-online-dot"></span>
                   <span class="msg-count">${g.msgCount || 0} messages</span>
                 </div>
               </div>`;
@@ -3493,8 +2374,70 @@
         document.getElementById('chatSendBtn').disabled = true;
       }
 
-      /* Detach previous listener */
+      /* Detach previous listeners */
       if (chatMsgListener) { chatMsgListener(); chatMsgListener = null; }
+      if (presenceListener) { presenceListener(); presenceListener = null; }
+      if (myPresenceRef) {
+        remove(myPresenceRef);
+        onDisconnect(myPresenceRef).cancel();
+        myPresenceRef = null;
+      }
+
+      /* Establish Presence */
+      const presenceRefDb = ref(db, 'roomPresence/' + group.id);
+      if (currentUser) {
+        myPresenceRef = ref(db, 'roomPresence/' + group.id + '/' + currentUser.uid);
+        onDisconnect(myPresenceRef).remove();
+        set(myPresenceRef, {
+          username: currentUser.username,
+          colourId: currentUser.colourId,
+          joinedAt: Date.now()
+        });
+      }
+
+      const renderedPresence = new Set();
+      presenceListener = onValue(presenceRefDb, (snap) => {
+        const usersListEl = document.getElementById('roomUsersList');
+        if (!usersListEl) return;
+        usersListEl.innerHTML = '';
+        
+        let count = 0;
+        if (snap.exists()) {
+          snap.forEach(c => {
+            count++;
+            const u = c.val();
+            
+            // Check for new joins
+            if (!renderedPresence.has(c.key)) {
+              if (renderedPresence.size > 0 && u.joinedAt > Date.now() - 5000) {
+                 const msgEl = document.getElementById('chatMessages');
+                 if (msgEl) {
+                   msgEl.appendChild(buildChatMessage({system: true, body: `${safe(u.username)} joined the room.`}));
+                   msgEl.scrollTop = msgEl.scrollHeight;
+                 }
+              }
+              renderedPresence.add(c.key);
+            }
+            
+            const cc = HAT_COLOURS.find(h => h.id === u.colourId) || HAT_COLOURS[8];
+            const item = document.createElement('div');
+            item.className = 'room-user-item';
+            item.innerHTML = `
+              <div class="room-user-avatar" style="background:${cc.bg};">
+                <img src="grey-hat.png" alt="" style="filter:${cc.filter === 'none' ? 'none' : cc.filter};" />
+              </div>
+              <div class="room-user-name" style="color:${getHatAccentColor(u.colourId)}">${safe(u.username)}</div>
+            `;
+            usersListEl.appendChild(item);
+          });
+        }
+        
+        if (count === 0) {
+          usersListEl.innerHTML = '<div style="padding:10px;font-size:12px;color:var(--dimmed);text-align:center;">Empty</div>';
+        }
+        const countEl = document.getElementById('chatMemberCount');
+        if (countEl) countEl.textContent = `${count} live`;
+      });
 
       /* Clear messages and show loading */
       const msgEl = document.getElementById('chatMessages');
@@ -4010,14 +2953,10 @@
     };
 
     /* ── Init ── */
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', loadFeed);
-    } else {
-      loadFeed();
-    }
+    /* (Chat rooms are loaded via activateLoggedInState on auth — no feed init needed) */
 
   </script>
   <!-- Version Indicator -->
-  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v2.4</div>
+  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v3.0 — Chat Pivot</div>
 </body>
 </html>
