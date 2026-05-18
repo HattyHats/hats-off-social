@@ -2920,14 +2920,14 @@
           body:      text,
           likes:     0,
           comments:  0,
-          createdAt: Date.now()
+          createdAt: serverTimestamp()
         };
         const newRef = push(ref(db, 'posts'));
         
         // Optimistic UI update
-        newPost.id = newRef.key;
+        const optimisticPost = { ...newPost, id: newRef.key, createdAt: Date.now() };
         if (!allPosts.find(p => p.id === newRef.key)) {
-          allPosts.unshift(newPost);
+          allPosts.unshift(optimisticPost);
           if (typeof renderFeed === 'function') renderFeed();
         }
 
@@ -4016,6 +4016,6 @@
 
   </script>
   <!-- Version Indicator -->
-  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v2.1</div>
+  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v2.2</div>
 </body>
 </html>
