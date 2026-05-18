@@ -2627,7 +2627,7 @@
             uid: cred.user.uid,
             username: username,
             colourId: selectedColour.id,
-            createdAt: serverTimestamp()
+            createdAt: Date.now()
           });
         } catch (dbErr) {
           console.error(dbErr);
@@ -2920,7 +2920,7 @@
           body:      text,
           likes:     0,
           comments:  0,
-          createdAt: serverTimestamp()
+          createdAt: Date.now()
         });
         resetComposeSegments();
         document.getElementById('composeActions').classList.remove('visible');
@@ -3152,7 +3152,7 @@
           colourId:  currentUser.colourId,
           body:      text,
           likes:     0,
-          createdAt: serverTimestamp()
+          createdAt: Date.now()
         });
         /* Increment comment count on post */
         runTransaction(ref(db, 'posts/' + postId + '/comments'), cur => (cur || 0) + 1);
@@ -3166,7 +3166,7 @@
               type: 'comment',
               from: currentUser.username,
               text: text,
-              createdAt: serverTimestamp(),
+              createdAt: Date.now(),
               read: false
             });
           }
@@ -3577,7 +3577,7 @@
           username:  currentUser.username,
           colourId:  currentUser.colourId,
           body:      text,
-          createdAt: serverTimestamp()
+          createdAt: Date.now()
         });
         /* Increment message count on group */
         runTransaction(ref(db, 'groups/' + activeGroupId + '/msgCount'), cur => (cur || 0) + 1);
@@ -3660,14 +3660,14 @@
           createdByUid: currentUser.uid,
           createdBy: currentUser.username,
           msgCount:  0,
-          createdAt: serverTimestamp()
+          createdAt: Date.now()
         });
 
         /* Post system welcome message */
         await push(ref(db, 'chatMessages/' + newRef.key), {
           system:    true,
           body:      '🎩 Room created by ' + currentUser.username + '. Welcome!',
-          createdAt: serverTimestamp()
+          createdAt: Date.now()
         });
 
         window.closeCreateGroup();
@@ -3822,7 +3822,7 @@
       const btn = document.getElementById('dmSendBtn');
       btn.disabled = true;
       const roomId = getDMRoomId(currentUser.username, activeDMUser);
-      const ts = serverTimestamp();
+      const ts = Date.now();
 
       try {
         await push(ref(db, 'directMessages/' + roomId), {
