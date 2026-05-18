@@ -2439,108 +2439,75 @@
       if (groupsListener) groupsListener();
       groupsListener = onValue(groupsRef, (snap) => {
         const listEl = document.getElementById('groupList');
-        if (!snap.exists()) {
-          listEl.innerHTML = '<p class="empty-msg" style="font-size:12px;color:var(--dimmed);padding:16px;text-align:center;">No rooms yet. Create one!</p>';
-          return;
-        }
-        
-        const emptyMsg = listEl.querySelector('.empty-msg');
-        if (emptyMsg) emptyMsg.remove();
-        
-        // Remove loading state if there
-        if (listEl.querySelector('div[style*="text-align:center"]')) {
-           listEl.innerHTML = '';
-        }
 
-        const groups = [...OFFICIAL_ROOMS];
-        snap.forEach(c => {
-          // If a user somehow creates a room with the same ID, we skip it
-          if (!OFFICIAL_ROOMS.find(o => o.id === c.key)) {
-            groups.push({ id: c.key, ...c.val(), isOfficial: false });
-          }
-        });
-        
-        // Let's sort user-created rooms by creation date reversed, but keep officials on top
-        const userGroups = groups.filter(g => !g.isOfficial).reverse();
-        const allGroups = [...OFFICIAL_ROOMS, ...userGroups];
-        
-        /* Add section labels if needed */
-        const hasUserRooms = userGroups.length > 0;
-        if (hasUserRooms && !listEl.querySelector('.group-section-label[data-label="official"]')) {
-          listEl.innerHTML = ''; // rebuild with labels
-        }
-
-        /* Full rebuild only when structure changes */
-        const needsRebuild = listEl.querySelector('.group-section-label') !== null
-          ? false
-          : hasUserRooms;
-
-        if (listEl.innerHTML === '' || needsRebuild) {
-          listEl.innerHTML = `<div class="group-section-label" data-label="official">Official</div>`;
-          if (hasUserRooms) {
-            // will be appended after official rooms below
-          }
-        }
-
-        const idsToKeep = new Set(allGroups.map(g => g.id));
-        Array.from(listEl.querySelectorAll('.group-item')).forEach(child => {
-           if (!idsToKeep.has(child.dataset.groupId)) child.remove();
-        });
-
-        let communityLabelInserted = !hasUserRooms;
-
-        allGroups.forEach((g, idx) => {
-          /* Insert community label before first non-official room */
-          if (!g.isOfficial && !communityLabelInserted) {
-            communityLabelInserted = true;
-            if (!listEl.querySelector('.group-section-label[data-label="community"]')) {
-              const lbl = document.createElement('div');
-              lbl.className = 'group-section-label';
-              lbl.dataset.label = 'community';
-              lbl.textContent = 'Community';
-              listEl.appendChild(lbl);
+        /* Collect user-created rooms (skip any that conflict with official IDs) */
+        const userRooms = [];
+        if (snap.exists()) {
+          snap.forEach(c => {
+            if (!OFFICIAL_ROOMS.find(o => o.id === c.key)) {
+              userRooms.push({ id: c.key, ...c.val(), isOfficial: false });
             }
-          }
+          });
+          userRooms.reverse(); /* newest first */
+        }
 
-          let el = Array.from(listEl.querySelectorAll('.group-item')).find(c => c.dataset.groupId === g.id);
-          const badgeHTML = g.isOfficial ? `<span style="font-size:10px;background:var(--accent);color:var(--bg);padding:2px 4px;border-radius:4px;font-weight:bold;margin-left:4px;">OFFICIAL</span>` : '';
-          const isFav = !!userFavorites[g.id];
-          const starHTML = `<button class="star-btn ${isFav ? 'starred' : ''}"
-            data-star-room="${g.id}"
-            title="${isFav ? 'Remove from favorites' : 'Add to favorites'}"
-            onclick="toggleFavorite(event,'${g.id}',${JSON.stringify(g.name)},${JSON.stringify(g.emoji||'🎩')},${JSON.stringify(g.bg||'#222')})">${isFav ? '★' : '☆'}</button>`;
+        /* Always do a clean rebuild so we never get stale DOM */
+        listEl.innerHTML = '';
 
-          if (!el) {
-            el = document.createElement('div');
-            el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
-            el.dataset.groupId = g.id;
-            el.innerHTML = `
-              <div class="group-icon" style="background:${g.bg || '#222'};">${g.emoji || '🎩'}</div>
-              <div class="group-info">
-                <div class="group-name">${safe(g.name)}${badgeHTML}</div>
-                <div class="group-meta">
-                  <span class="msg-count">${g.msgCount || 0} messages</span>
-                </div>
-              </div>
-              ${starHTML}`;
-            el.addEventListener('click', function(e) {
-              if (e.target.classList.contains('star-btn')) return;
-              openRoom(g);
-            });
-          } else {
-             const msgCountSpan = el.querySelector('.msg-count');
-             if (msgCountSpan) msgCountSpan.textContent = (g.msgCount || 0) + ' messages';
-             el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
-             /* refresh star state */
-             const starBtn = el.querySelector('.star-btn');
-             if (starBtn) {
-               starBtn.className = 'star-btn' + (isFav ? ' starred' : '');
-               starBtn.textContent = isFav ? '★' : '☆';
-             }
-          }
-          listEl.appendChild(el);
-        });
+        /* ── Section: Official ── */
+        const officialLabel = document.createElement('div');
+        officialLabel.className = 'group-section-label';
+        officialLabel.textContent = 'Official';
+        listEl.appendChild(officialLabel);
+
+        OFFICIAL_ROOMS.forEach(g => listEl.appendChild(buildRoomItem(g)));
+
+        /* ── Section: Community (only if any exist) ── */
+        if (userRooms.length > 0) {
+          const communityLabel = document.createElement('div');
+          communityLabel.className = 'group-section-label';
+          communityLabel.textContent = 'Community';
+          listEl.appendChild(communityLabel);
+          userRooms.forEach(g => listEl.appendChild(buildRoomItem(g)));
+        }
       });
+    }
+
+    function buildRoomItem(g) {
+      const isFav    = !!userFavorites[g.id];
+      const badgeHTML = g.isOfficial
+        ? `<span style="font-size:10px;background:var(--accent);color:var(--bg);padding:2px 4px;border-radius:4px;font-weight:bold;margin-left:4px;">OFFICIAL</span>`
+        : '';
+
+      /* Safely encode args for the inline onclick */
+      const favArgs = [
+        JSON.stringify(g.id),
+        JSON.stringify(g.name || ''),
+        JSON.stringify(g.emoji || '🎩'),
+        JSON.stringify(g.bg   || '#222')
+      ].join(',');
+
+      const el = document.createElement('div');
+      el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
+      el.dataset.groupId = g.id;
+      el.innerHTML = `
+        <div class="group-icon" style="background:${g.bg || '#222'};">${g.emoji || '🎩'}</div>
+        <div class="group-info">
+          <div class="group-name">${safe(g.name)}${badgeHTML}</div>
+          <div class="group-meta">
+            <span class="msg-count">${g.msgCount || 0} messages</span>
+          </div>
+        </div>
+        <button class="star-btn ${isFav ? 'starred' : ''}"
+          data-star-room="${g.id}"
+          title="${isFav ? 'Remove from favorites' : 'Add to favorites'}"
+          onclick="toggleFavorite(event,${favArgs})">${isFav ? '★' : '☆'}</button>`;
+
+      el.addEventListener('click', function(e) {
+        if (e.target.closest('.star-btn')) return;
+        openRoom(g);
+      });
+      return el;
     }
 
     /* Open a chat room */
@@ -3167,6 +3134,6 @@
 
   </script>
   <!-- Version Indicator -->
-  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v3.1 — Favorites</div>
+  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v3.2 — Fixed</div>
 </body>
 </html>
