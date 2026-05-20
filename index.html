@@ -853,6 +853,9 @@
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
     .fade-1 { animation: fadeUp 0.7s ease both 0.1s; }
     .fade-2 { animation: fadeUp 0.7s ease both 0.25s; }
     .fade-3 { animation: fadeUp 0.7s ease both 0.4s; }
@@ -2059,7 +2062,12 @@
     });
 
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') { window.closeModal(); window.closeLoginModal(); }
+      if (e.key === 'Escape') {
+        window.closeModal();
+        window.closeLoginModal();
+        window.closeNotifications && window.closeNotifications();
+        window.closeCreateGroup && window.closeCreateGroup();
+      }
     });
 
     window.submitLogin = async function() {
@@ -2227,7 +2235,7 @@
         }
         currentUser = { uid: cred.user.uid, username, colour: selectedColour, colourId: selectedColour.id };
         try { localStorage.setItem('ho_user', JSON.stringify({ username, colourId: selectedColour.id })); } catch(e) {}
-        showFeedOnlyView();
+        showMainChatView();
         document.getElementById('welcomeMsg').textContent = 'Welcome to Hats Off, ' + username + '. Your hat is on.';
         window.showStep(3);
       } catch (err) {
@@ -2358,13 +2366,13 @@
       try { localStorage.setItem('ho_favorites', JSON.stringify(userFavorites)); } catch(e) {}
     }
 
-    window.toggleFavorite = function(e, roomId, roomName, roomEmoji, roomBg) {
+    window.toggleFavorite = function(e, roomId, roomName, roomEmoji, roomBg, roomTopic) {
       e.stopPropagation(); // don't open the room
       if (userFavorites[roomId]) {
         delete userFavorites[roomId];
         showToast('Removed from favorites');
       } else {
-        userFavorites[roomId] = { name: roomName, emoji: roomEmoji, bg: roomBg };
+        userFavorites[roomId] = { name: roomName, emoji: roomEmoji, bg: roomBg, topic: roomTopic || '' };
         showToast('⭐ Added to favorites!');
       }
       saveFavorites();
@@ -2394,7 +2402,7 @@
           <div class="fav-icon" style="background:${room.bg || '#222'};">${room.emoji || '🎩'}</div>
           <div class="fav-name">${safe(room.name)}</div>
           <button class="fav-unstar" title="Remove from favorites"
-            onclick="toggleFavorite(event,'${id}',${JSON.stringify(room.name)},${JSON.stringify(room.emoji)},${JSON.stringify(room.bg)})">★</button>`;
+            onclick="toggleFavorite(event,'${id}',${JSON.stringify(room.name)},${JSON.stringify(room.emoji)},${JSON.stringify(room.bg)},${JSON.stringify(room.topic||'')})">★</button>`;
         /* Click the row (not the unstar btn) to open the room */
         div.addEventListener('click', function(e) {
           if (e.target.classList.contains('fav-unstar')) return;
@@ -2423,11 +2431,16 @@
       }
       activeGroupId = null;
       document.querySelectorAll('#groupList .group-item').forEach(el => el.classList.remove('active'));
-      document.getElementById('chatEmpty').style.display = 'flex';
-      document.getElementById('activeChat').style.display = 'none';
-      document.getElementById('chatMessages').innerHTML = '';
-      document.getElementById('chatInput').value = '';
-      document.getElementById('chatSendBtn').disabled = true;
+      const chatEmpty = document.getElementById('chatEmpty');
+      const activeChat = document.getElementById('activeChat');
+      const chatMessages = document.getElementById('chatMessages');
+      const chatInput = document.getElementById('chatInput');
+      const chatSendBtn = document.getElementById('chatSendBtn');
+      if (chatEmpty)    chatEmpty.style.display = 'flex';
+      if (activeChat)   activeChat.style.display = 'none';
+      if (chatMessages) chatMessages.innerHTML = '';
+      if (chatInput)    chatInput.value = '';
+      if (chatSendBtn)  chatSendBtn.disabled = true;
     };
 
     /* Load groups list from Firebase */
@@ -2487,7 +2500,8 @@
         JSON.stringify(g.id),
         JSON.stringify(g.name || ''),
         JSON.stringify(g.emoji || '🎩'),
-        JSON.stringify(g.bg   || '#222')
+        JSON.stringify(g.bg   || '#222'),
+        JSON.stringify(g.topic || '')
       ].join(',');
 
       const el = document.createElement('div');
@@ -2863,10 +2877,36 @@
     }
 
     window.promptNewDM = function() {
-      const username = prompt("Enter the username of the person you want to message:");
-      if (username && username.trim()) {
-        openDMRoom(normalizeUsername(username));
-      }
+      /* Use a clean inline prompt instead of the jarring native browser prompt */
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:24px;';
+      modal.innerHTML = `
+        <div style="background:var(--bg2);border:1px solid var(--border-md);border-radius:16px;padding:28px;width:100%;max-width:360px;">
+          <h3 style="font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px;">New Message</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Enter the username you want to message.</p>
+          <input id="dmPromptInput" class="modal-input" type="text" placeholder="username" autocomplete="off" maxlength="30"
+            style="width:100%;margin-bottom:14px;" />
+          <div style="display:flex;gap:8px;">
+            <button class="modal-btn" id="dmPromptOk" style="flex:1;">Open Chat</button>
+            <button class="btn-ghost" id="dmPromptCancel" style="flex:1;">Cancel</button>
+          </div>
+        </div>`;
+
+      document.body.appendChild(modal);
+      const input = modal.querySelector('#dmPromptInput');
+      setTimeout(() => input.focus(), 60);
+
+      const close = () => document.body.removeChild(modal);
+      modal.querySelector('#dmPromptCancel').onclick = close;
+      modal.addEventListener('click', e => { if (e.target === modal) close(); });
+      modal.querySelector('#dmPromptOk').onclick = () => {
+        const val = input.value.trim();
+        if (val) { close(); openDMRoom(normalizeUsername(val)); }
+      };
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { modal.querySelector('#dmPromptOk').click(); }
+        if (e.key === 'Escape') close();
+      });
     };
 
     window.openDMRoom = async function(otherUsername) {
@@ -3137,6 +3177,6 @@
 
   </script>
   <!-- Version Indicator -->
-  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;">v3.3 — Splash Fix</div>
+  <div id="v-indicator" style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--dimmed);z-index:9999;opacity:0.5;pointer-events:none;">v3.4</div>
 </body>
 </html>
