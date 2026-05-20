@@ -2401,8 +2401,14 @@
         div.innerHTML = `
           <div class="fav-icon" style="background:${room.bg || '#222'};">${room.emoji || '🎩'}</div>
           <div class="fav-name">${safe(room.name)}</div>
-          <button class="fav-unstar" title="Remove from favorites"
-            onclick="toggleFavorite(event,'${id}',${JSON.stringify(room.name)},${JSON.stringify(room.emoji)},${JSON.stringify(room.bg)},${JSON.stringify(room.topic||'')})">★</button>`;
+          <button class="fav-unstar" title="Remove from favorites">★</button>`;
+
+        /* Wire unstar via addEventListener — avoids inline onclick quoting issues */
+        div.querySelector('.fav-unstar').addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleFavorite(e, id, room.name, room.emoji, room.bg, room.topic || '');
+        });
+
         /* Click the row (not the unstar btn) to open the room */
         div.addEventListener('click', function(e) {
           if (e.target.classList.contains('fav-unstar')) return;
@@ -2495,15 +2501,6 @@
         ? `<span style="font-size:10px;background:var(--accent);color:var(--bg);padding:2px 4px;border-radius:4px;font-weight:bold;margin-left:4px;">OFFICIAL</span>`
         : '';
 
-      /* Safely encode args for the inline onclick */
-      const favArgs = [
-        JSON.stringify(g.id),
-        JSON.stringify(g.name || ''),
-        JSON.stringify(g.emoji || '🎩'),
-        JSON.stringify(g.bg   || '#222'),
-        JSON.stringify(g.topic || '')
-      ].join(',');
-
       const el = document.createElement('div');
       el.className = 'group-item' + (g.id === activeGroupId ? ' active' : '');
       el.dataset.groupId = g.id;
@@ -2517,8 +2514,25 @@
         </div>
         <button class="star-btn ${isFav ? 'starred' : ''}"
           data-star-room="${g.id}"
-          title="${isFav ? 'Remove from favorites' : 'Add to favorites'}"
-          onclick="toggleFavorite(event,${favArgs})">${isFav ? '★' : '☆'}</button>`;
+          data-room-name="${safe(g.name || '')}"
+          data-room-emoji="${safe(g.emoji || '🎩')}"
+          data-room-bg="${safe(g.bg || '#222')}"
+          data-room-topic="${safe(g.topic || '')}"
+          title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">${isFav ? '★' : '☆'}</button>`;
+
+      /* Wire star button via addEventListener — avoids inline onclick quoting issues */
+      const starBtn = el.querySelector('.star-btn');
+      starBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleFavorite(
+          e,
+          g.id,
+          g.name || '',
+          g.emoji || '🎩',
+          g.bg   || '#222',
+          g.topic || ''
+        );
+      });
 
       el.addEventListener('click', function(e) {
         if (e.target.closest('.star-btn')) return;
